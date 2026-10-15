@@ -1,0 +1,54 @@
+---
+import Article from '../../layouts/Article.astro';
+import Cite from '../../components/Cite.astro';
+import Todo from '../../components/Todo.astro';
+---
+
+<Article
+  title="ClauseCraft"
+  kicker="Legal tech · Live"
+  status="Live app"
+  headline="The job-assignment MVP that became a full product"
+  deck="ClauseCraft drafts contracts from a prompt or a questionnaire, rates every clause for risk and flags what’s missing. No sign-up, and drafts never leave the browser."
+  facts={[
+    { label: 'Role', value: 'Solo build' },
+    { label: 'Frontend', value: 'React, TypeScript, Tailwind, shadcn/ui' },
+    { label: 'AI', value: 'Supabase Edge Functions, Hugging Face Router' },
+    { label: 'Storage', value: 'Browser localStorage only' },
+    { label: 'Try it', value: '<span class="todo">[link to the live app]</span>' },
+  ]}
+  cites={['clausecraft']}
+  next={{ href: '/work/amoebots', headline: 'Finding symmetry when every particle is blind' }}
+>
+  <h2>“Just enough” wasn’t enough</h2>
+  <p>
+    It was supposed to be a quick MVP for a job assignment. I got too interested in legal text and kept
+    going until it was a product.<Cite id="clausecraft" />
+  </p>
+
+  <h2>What it does</h2>
+  <ul>
+    <li>Generates a complete contract from a prompt or a guided questionnaire.</li>
+    <li>Analyses each clause for risk.</li>
+    <li>Reviews the whole contract for missing clauses and compliance issues.</li>
+    <li>Inline editing with undo and redo, then export.</li>
+  </ul>
+
+  <h2>Decisions</h2>
+  <p>
+    <strong>Privacy first.</strong> No accounts and no server-side storage: drafts live in the browser’s
+    localStorage, and only the text being analysed goes to the model.
+  </p>
+  <p>
+    <strong>Model calls behind Edge Functions.</strong> Supabase Edge Functions call the Hugging Face Router,
+    so no keys reach the client and models can be swapped. <Todo>which models, and why</Todo>
+  </p>
+
+  <h2>Evidence</h2>
+  <p><Todo>screenshots, a clause-analysis example, and how you checked the risk ratings</Todo></p>
+
+  <h2>What I’d do next</h2>
+  <ul>
+    <li><Todo>e.g. cite the exact clause text behind every risk rating</Todo></li>
+  </ul>
+</Article>

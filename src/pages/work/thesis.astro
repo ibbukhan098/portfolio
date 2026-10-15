@@ -1,0 +1,68 @@
+---
+import Article from '../../layouts/Article.astro';
+import Cite from '../../components/Cite.astro';
+import Todo from '../../components/Todo.astro';
+---
+
+<Article
+  title="Talking to health records"
+  kicker="Health · M.Sc. thesis"
+  status="Research in progress"
+  headline="Talking to health records, without saying more than they do"
+  deck="A modular, FHIR-based hospital system for German healthcare. Patients control who sees their data, and the AI agents on top of it are measured on whether they stay grounded in the record."
+  facts={[
+    { label: 'Title', value: 'AI-Assisted Hospital Management: A Modular, FHIR-Based System with Privacy-Preserving Design for the German Healthcare Context' },
+    { label: 'Role', value: 'Author, M.Sc. Computer Engineering thesis' },
+    { label: 'Where', value: 'Fraunhofer IEM, Paderborn' },
+    // TODO: confirm both people are happy to be named before launch
+    { label: 'Supervision', value: 'Tommy Falkowski, Fraunhofer IEM' },
+    { label: 'Clinical input', value: 'Dr. Szabolcs Szeöke, Spine Center, Brüderkrankenhaus St. Josef Paderborn' },
+    { label: 'Built on', value: 'HL7 FHIR, role-based access, audit logging, local and cloud LLMs' },
+  ]}
+  cites={['thesis', 'thesis-post', 'fraunhofer']}
+  next={{ href: '/work/clausecraft', headline: 'The job-assignment MVP that became a full product' }}
+>
+  <h2>I wanted to be a doctor. This was another way in.</h2>
+  <p>
+    As a kid I wanted to become a doctor, because doctors get to help people every day. I ended up in tech
+    instead. This thesis is where the two meet: if an assistant can answer questions about a record reliably,
+    doctors get time back for their patients.<Cite id="thesis-post" />
+  </p>
+  <blockquote>The hard part isn’t getting a model to answer. It’s getting patients, doctors and regulators to rely on the answer.</blockquote>
+
+  <h2>What I’m building</h2>
+  <p>
+    A modular hospital management system that speaks HL7 FHIR natively, so records can move between systems
+    without custom glue. Access depends on who you are, and every read and write is audit-logged.<Cite id="thesis" />
+  </p>
+
+  <h2>Three rules the system has to obey</h2>
+  <ol>
+    <li>
+      <strong>The patient stays in control.</strong> Data handling is designed for GDPR and Germany’s
+      electronic patient record (ePA): patients decide what is shared, and pseudonymisation can be reversed
+      only when it must be.<Cite id="thesis" />
+    </li>
+    <li><strong>No unsupported claims.</strong> Every statement must trace back to a passage in the record. If it can’t, the assistant says so.<Cite id="thesis-post" /></li>
+    <li><strong>Easy to check.</strong> Doctors need to verify an answer in seconds, not re-read the record.</li>
+  </ol>
+
+  <h2>How the agents are judged</h2>
+  <p>
+    Each persona-specific agent is benchmarked on local and cloud LLMs for relevance, grounding,
+    hallucination rate, latency, cost and the infrastructure it needs.<Cite id="thesis" /> Local models keep
+    data in the hospital; cloud models may answer better. The thesis measures that trade-off instead of
+    assuming it.
+  </p>
+
+  <h2>Evidence</h2>
+  <p><Todo>results table: models compared, grounding and hallucination rates, latency, cost</Todo></p>
+  <p><strong>A failure I found:</strong> <Todo>the question that broke it, and what it wrongly said</Todo></p>
+  <p><strong>What I changed:</strong> <Todo>the fix, and the metric before and after</Todo></p>
+
+  <h2>What I’d do next</h2>
+  <ul>
+    <li><Todo>what you would test with real clinicians</Todo></li>
+    <li><Todo>a limitation you haven’t solved yet</Todo></li>
+  </ul>
+</Article>

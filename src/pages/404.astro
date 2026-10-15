@@ -1,0 +1,27 @@
+---
+import Paper from '../layouts/Paper.astro';
+---
+
+<Paper title="Page not found">
+  <section class="missing">
+    <span class="label kicker">Correction</span>
+    <h1>This page is not on the record</h1>
+    <p>We couldn’t find a source for that address. <a href="/">Return to the front page</a>.</p>
+  </section>
+</Paper>
+
+<style>
+  .missing {
+    max-width: 720px;
+    padding: 48px 0;
+  }
+
+  h1 {
+    font: 900 clamp(36px, 5vw, 56px) / 1.05 var(--font-head);
+    margin: 10px 0 16px;
+  }
+
+  p {
+    font-size: 19px;
+  }
+</style>

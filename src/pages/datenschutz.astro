@@ -1,0 +1,29 @@
+---
+import Paper from '../layouts/Paper.astro';
+---
+
+<Paper title="Datenschutz">
+  <section class="legal">
+    <h1>Datenschutzerklärung</h1>
+    <p>
+      This site sets no cookies, uses no analytics, and loads its fonts from this server rather than from a
+      third party.
+    </p>
+    <p class="todo">
+      Replace with a full privacy policy covering your hosting provider’s server logs and how email enquiries
+      are handled.
+    </p>
+  </section>
+</Paper>
+
+<style>
+  .legal {
+    max-width: 720px;
+    padding: 32px 0;
+  }
+
+  h1 {
+    font: 900 44px/1.1 var(--font-head);
+    margin: 0 0 16px;
+  }
+</style>

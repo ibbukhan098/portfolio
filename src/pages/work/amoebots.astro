@@ -1,0 +1,87 @@
+---
+import Article from '../../layouts/Article.astro';
+import Cite from '../../components/Cite.astro';
+import Todo from '../../components/Todo.astro';
+---
+
+<Article
+  title="Symmetry in programmable matter"
+  kicker="Science · Distributed algorithms"
+  status="Interactive coming"
+  headline="Finding symmetry when every particle is blind"
+  deck="Tiny robots on a hexagonal grid, each with constant memory and only its neighbours in view, work out together whether their shape is symmetric, in O(log⁵ n) time."
+  facts={[
+    { label: 'Where', value: 'Paderborn University, team project' },
+    { label: 'When', value: 'Aug 2024 – Aug 2025' },
+    { label: 'Model', value: 'Geometric amoebot model, reconfigurable circuits' },
+    { label: 'Simulator', value: 'AmoebotSim (Unity)' },
+    { label: 'Result', value: 'O(log⁵ n) symmetry detection' },
+  ]}
+  cites={['amoebots']}
+>
+  <figure class="figure">
+    <svg viewBox="0 0 208 140" role="img" aria-label="A hexagon of 19 particles with a vertical axis of symmetry">
+      <line x1="104" y1="2" x2="104" y2="136" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="3 3"></line>
+      <g fill="#111">
+        <circle cx="76" cy="20" r="9"></circle><circle cx="104" cy="20" r="9"></circle><circle cx="132" cy="20" r="9"></circle>
+        <circle cx="62" cy="44" r="9"></circle><circle cx="90" cy="44" r="9"></circle><circle cx="118" cy="44" r="9"></circle><circle cx="146" cy="44" r="9"></circle>
+        <circle cx="48" cy="68" r="9"></circle><circle cx="76" cy="68" r="9"></circle><circle cx="132" cy="68" r="9"></circle><circle cx="160" cy="68" r="9"></circle>
+        <circle cx="62" cy="93" r="9"></circle><circle cx="90" cy="93" r="9"></circle><circle cx="118" cy="93" r="9"></circle><circle cx="146" cy="93" r="9"></circle>
+        <circle cx="76" cy="117" r="9"></circle><circle cx="104" cy="117" r="9"></circle><circle cx="132" cy="117" r="9"></circle>
+      </g>
+      <circle cx="104" cy="68" r="9" fill="#c8102e"></circle>
+    </svg>
+    <figcaption>Fig. 1: 19 particles, each seeing only its neighbours. The interactive version will let you reshape the cluster and watch the detection run.</figcaption>
+  </figure>
+
+  <h2>The model</h2>
+  <p>
+    In the amoebot model, particles sit on a hexagonal grid, have constant memory, and communicate only by
+    “beeps” over reconfigurable circuits. Even simple global questions are hard when no particle can see the
+    whole shape.<Cite id="amoebots" />
+  </p>
+
+  <h2>The approach</h2>
+  <p>
+    We reduced symmetry detection to polynomial identity testing over finite fields: encode the shape as
+    binary strings, then check equality probabilistically with modular arithmetic, in parallel across the
+    particle chain.
+  </p>
+
+  <h2>My part</h2>
+  <ul>
+    <li><strong>Distributed random number generation:</strong> a multi-round pipeline that generates and validates values 0 ≤ r &lt; p across all blocks.</li>
+    <li><strong>SendValueToBlocks:</strong> a reusable two-round protocol that broadcasts a value from one block to all others over reconfigurable circuits.</li>
+    <li><strong>ComputeF:</strong> polynomial evaluation f(r) = Σ(aₑrᵉ mod p) via right-to-left modular exponentiation, PASC-based tree summation, and a SubDivision2 subroutine for when the dividend is smaller than the divisor.</li>
+  </ul>
+
+  <h2>What I learned</h2>
+  <p>
+    Thinking distributedly was hard at first. Every particle is blind to the global state, so you design
+    local rules and trust them to produce the global answer. Once that clicked, the constraint became the
+    interesting part.
+  </p>
+  <p><Todo>link the 21-page report, credit teammates and supervisors</Todo></p>
+</Article>
+
+<style>
+  .figure {
+    margin: 0 0 28px;
+    padding: 20px;
+    border: 1px solid var(--ink);
+  }
+
+  .figure svg {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .figure figcaption {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-3);
+  }
+</style>
