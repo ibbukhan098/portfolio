@@ -1,82 +1,81 @@
 ---
 import Paper from '../layouts/Paper.astro';
-import Todo from '../components/Todo.astro';
 import { site } from '../data/site';
 import { url } from '../lib/url';
 ---
 
-<Paper title="Datenschutz" description="Privacy policy for this website.">
-  <article class="legal" lang="de">
+<Paper title="Privacy" description="Privacy policy for this website.">
+  <article class="legal">
     <span class="label kicker">Privacy</span>
-    <h1>Datenschutzerklärung</h1>
-    <p class="en" lang="en">
+    <h1>Privacy policy</h1>
+    <p class="note">
+      English translation of the <a href={url('/de/datenschutz')}>German Datenschutzerklärung</a>. If the two
+      differ, the German version applies.
+    </p>
+    <p class="note">
       In short: no cookies, no analytics, no tracking, and no third-party embeds. Fonts are served from this
-      site. The host, GitHub Pages, keeps standard server logs. Details in German below.
+      site. The host, GitHub Pages, keeps standard server logs.
     </p>
 
-    <h2>1. Verantwortlicher</h2>
+    <h2>1. Controller</h2>
     <address>
       {site.name}<br />
-      {site.address.street ? <>{site.address.street}<br /></> : <><Todo>Straße und Hausnummer</Todo><br /></>}
-      {site.address.postcode} {site.address.city}, {site.address.country}<br />
-      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+      {site.address.street}<br />
+      {site.address.postcode} {site.address.city}, {site.address.country.en}<br />
+      Email: <a href={`mailto:${site.email}`}>{site.email}</a>
     </address>
 
-    <h2>2. Überblick</h2>
+    <h2>2. Overview</h2>
     <p>
-      Diese Website setzt keine Cookies, verwendet keine Analyse- oder Tracking-Werkzeuge und bindet keine
-      Inhalte Dritter ein. Schriftarten werden von diesem Server ausgeliefert, nicht von externen Anbietern.
+      This website sets no cookies, uses no analytics or tracking tools, and embeds no third-party content.
+      Fonts are served from this site, not from external providers.
     </p>
     <p>
-      Die Funktion „Readers ask the Record“ läuft vollständig in Ihrem Browser. Eingegebene Fragen werden
-      weder übertragen noch gespeichert.
-    </p>
-
-    <h2>3. Hosting über GitHub Pages</h2>
-    <p>
-      Diese Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc., 88 Colin P. Kelly
-      Jr. Street, San Francisco, CA 94107, USA. Beim Aufruf der Seiten verarbeitet GitHub technisch
-      notwendige Daten in Server-Logfiles, insbesondere IP-Adresse, Datum und Uhrzeit des Zugriffs,
-      aufgerufene Seite, Referrer-URL sowie Browser- und Betriebssysteminformationen.
-    </p>
-    <p>
-      Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse
-      liegt in der sicheren und zuverlässigen Bereitstellung der Website. Dabei können Daten in die USA
-      übermittelt werden. GitHub gibt an, unter dem EU-U.S. Data Privacy Framework zertifiziert zu sein.
-      Weitere Informationen enthält die
-      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.
+      “Readers ask the Record” runs entirely in your browser. Questions you type are neither sent anywhere nor
+      stored.
     </p>
 
-    <h2>4. Kontakt per E-Mail</h2>
+    <h2>3. Hosting on GitHub Pages</h2>
     <p>
-      Wenn Sie mir eine E-Mail schreiben, verarbeite ich Ihre Angaben, um Ihre Anfrage zu beantworten. Geht
-      es um eine mögliche Zusammenarbeit oder Anstellung, ist die Rechtsgrundlage Art. 6 Abs. 1 lit. b
-      DSGVO, ansonsten Art. 6 Abs. 1 lit. f DSGVO. Ich lösche die Daten, sobald sie für diesen Zweck nicht
-      mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.
+      This website is served by GitHub Pages, a service of GitHub, Inc., 88 Colin P. Kelly Jr. Street,
+      San Francisco, CA 94107, USA. When you visit, GitHub processes technically necessary data in server log
+      files, in particular your IP address, the date and time of access, the page requested, the referrer URL,
+      and browser and operating-system information.
+    </p>
+    <p>
+      The legal basis is Art. 6(1)(f) GDPR. My legitimate interest is serving the website securely and
+      reliably. Data may be transferred to the USA in the process. GitHub states that it is certified under
+      the EU-U.S. Data Privacy Framework. For details, see
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub’s privacy statement</a>.
     </p>
 
-    <h2>5. Links zu anderen Websites</h2>
+    <h2>4. Contact by email</h2>
     <p>
-      Diese Website verlinkt auf externe Angebote wie LinkedIn und GitHub. Es handelt sich um einfache Links:
-      Daten werden erst übertragen, wenn Sie einen Link anklicken. Ab dann gilt die Datenschutzerklärung des
-      jeweiligen Anbieters.
+      If you email me, I process your details to answer your enquiry. Where it concerns possible work or
+      employment, the legal basis is Art. 6(1)(b) GDPR; otherwise Art. 6(1)(f) GDPR. I delete the data once it
+      is no longer needed for that purpose and no statutory retention obligations apply.
     </p>
 
-    <h2>6. Ihre Rechte</h2>
+    <h2>5. Links to other websites</h2>
     <p>
-      Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17),
-      Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen
-      Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21). Wenden Sie sich dazu an die oben
-      genannte E-Mail-Adresse.
-    </p>
-    <p>
-      Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der
-      Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestraße 2–4,
-      40213 Düsseldorf.
+      This site links to external services such as LinkedIn and GitHub. These are plain links: no data is
+      transferred until you click one. From then on, that provider’s privacy policy applies.
     </p>
 
-    <p class="updated">Stand: Oktober 2026</p>
-    <p class="see-also"><a href={url('/impressum')}>Impressum ›</a></p>
+    <h2>6. Your rights</h2>
+    <p>
+      You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of
+      processing (Art. 18), data portability (Art. 20), and to object to processing based on Art. 6(1)(f) GDPR
+      (Art. 21). To exercise them, write to the email address above.
+    </p>
+    <p>
+      You can also complain to a data protection supervisory authority, for example the State Commissioner for
+      Data Protection and Freedom of Information of North Rhine-Westphalia (LDI NRW), Kavalleriestraße 2–4,
+      40213 Düsseldorf, Germany.
+    </p>
+
+    <p class="updated">Last updated: October 2026</p>
+    <p class="see-also"><a href={url('/impressum')}>Legal notice ›</a></p>
   </article>
 </Paper>
 
@@ -102,7 +101,7 @@ import { url } from '../lib/url';
     font-style: normal;
   }
 
-  .en {
+  .note {
     font-style: italic;
     color: var(--ink-3);
   }

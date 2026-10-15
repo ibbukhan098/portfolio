@@ -1,51 +1,104 @@
 ---
-import { site, nav } from '../data/site';
+import { site } from '../data/site';
 import { edition } from '../lib/edition';
 import { url, samePage } from '../lib/url';
+import { getLang, localize, counterpart, t, ui, nav } from '../i18n';
 
 interface Props {
   compact?: boolean;
 }
 
 const { compact = false } = Astro.props;
-const { volume, number, dateline } = edition();
 const path = Astro.url.pathname;
+const lang = getLang(path);
+const { volume, number, dateline } = edition(lang);
+
+const editions = [
+  { lang: 'en', label: 'English' },
+  { lang: 'de', label: 'Deutsch' },
+] as const;
 ---
 
 <header class:list={['masthead', { compact }]}>
+  <div class="topbar">
+    <nav class="lang label" aria-label={t(ui.languageLabel, lang)}>
+      {editions.map((e, i) => (
+        <>
+          {i > 0 && <span aria-hidden="true">|</span>}
+          <a
+            href={url(counterpart(path, e.lang))}
+            hreflang={e.lang}
+            lang={e.lang}
+            aria-current={e.lang === lang ? 'true' : undefined}
+          >
+            {e.label}
+          </a>
+        </>
+      ))}
+    </nav>
+  </div>
+
   {!compact && (
     <div class="dateline label">
-      <span>Vol. {volume} · No. {number}</span>
+      <span>{t(ui.volume, lang)} {volume} · {t(ui.number, lang)} {number}</span>
       <span>{site.location}, {dateline}</span>
-      <span>Price: one interview</span>
+      <span>{t(ui.price, lang)}</span>
     </div>
   )}
 
   <div class="title">
-    <a href={url('/')} class="name" aria-label={`${site.paper}, front page`}>{site.paper}</a>
-    {!compact && <p class="motto">“{site.motto}”</p>}
+    <a href={url(localize('/', lang))} class="name" aria-label={`${site.paper}, ${t(ui.frontPageLabel, lang)}`}>{site.paper}</a>
+    {!compact && <p class="motto">“{t(ui.paperTagline, lang)}”</p>}
   </div>
 
-  <nav aria-label="Sections">
-    {nav.map((item) => (
-      <a
-        class="label"
-        href={url(item.href)}
-        aria-current={samePage(url(item.href), path) ? 'page' : undefined}
-      >
-        {item.label}
-      </a>
-    ))}
+  <nav aria-label="Sections" class="sections">
+    {nav.map((item) => {
+      const href = url(localize(item.href, lang));
+      return (
+        <a class="label" href={href} aria-current={samePage(href, path) ? 'page' : undefined}>
+          {t(item.label, lang)}
+        </a>
+      );
+    })}
   </nav>
 </header>
 
 <style>
+  .topbar {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.08em;
+  }
+
+  .lang a {
+    padding: 10px 2px;
+    text-decoration: none;
+    color: var(--ink-3);
+  }
+
+  .lang a[aria-current='true'] {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .lang a:hover {
+    color: var(--accent);
+  }
+
   .dateline {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 6px 20px;
     padding: 8px 0;
+    border-top: 1px solid var(--ink);
     border-bottom: 1px solid var(--ink);
     letter-spacing: 0.08em;
     font-weight: 700;
@@ -55,6 +108,10 @@ const path = Astro.url.pathname;
     text-align: center;
     padding: 18px 0 10px;
     border-bottom: 4px double var(--ink);
+  }
+
+  .compact .title {
+    border-top: 1px solid var(--ink);
   }
 
   .name {
@@ -69,7 +126,7 @@ const path = Astro.url.pathname;
     font-size: 17px;
   }
 
-  nav {
+  .sections {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -78,12 +135,12 @@ const path = Astro.url.pathname;
     border-bottom: 1px solid var(--ink);
   }
 
-  nav a {
+  .sections a {
     padding: 12px 0;
     text-decoration: none;
   }
 
-  nav a[aria-current='page'] {
+  .sections a[aria-current='page'] {
     color: var(--accent);
   }
 

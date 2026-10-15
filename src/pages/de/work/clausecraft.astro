@@ -1,0 +1,54 @@
+---
+import Article from '../../../layouts/Article.astro';
+import Cite from '../../../components/Cite.astro';
+import Todo from '../../../components/Todo.astro';
+---
+
+<Article
+  title="ClauseCraft"
+  kicker="Legal Tech · Online"
+  status="App online"
+  headline="Das Bewerbungs-MVP, das zum fertigen Produkt wurde"
+  deck="ClauseCraft entwirft Verträge aus einem Prompt oder Fragebogen, bewertet jede Klausel nach Risiko und zeigt, was fehlt. Ohne Anmeldung, und die Entwürfe verlassen nie den Browser."
+  facts={[
+    { label: 'Rolle', value: 'Allein entwickelt' },
+    { label: 'Frontend', value: 'React, TypeScript, Tailwind, shadcn/ui' },
+    { label: 'KI', value: 'Supabase Edge Functions, Hugging Face Router' },
+    { label: 'Speicher', value: 'Nur localStorage im Browser' },
+    { label: 'Ausprobieren', value: '<span class="todo">[Link zur App]</span>' },
+  ]}
+  cites={['clausecraft']}
+  next={{ href: '/work/amoebots', headline: 'Symmetrie finden, wenn jedes Teilchen blind ist' }}
+>
+  <h2>„Gerade genug“ war nicht genug</h2>
+  <p>
+    Eigentlich sollte es ein schnelles MVP für eine Bewerbungsaufgabe werden. Dann haben mich juristische
+    Texte zu sehr interessiert, und ich habe weitergemacht, bis ein Produkt daraus wurde.<Cite id="clausecraft" />
+  </p>
+
+  <h2>Was es kann</h2>
+  <ul>
+    <li>Erstellt einen vollständigen Vertrag aus einem Prompt oder einem geführten Fragebogen.</li>
+    <li>Bewertet jede Klausel nach Risiko.</li>
+    <li>Prüft den ganzen Vertrag auf fehlende Klauseln und Compliance-Probleme.</li>
+    <li>Bearbeitung direkt im Text mit Rückgängig und Wiederholen, danach Export.</li>
+  </ul>
+
+  <h2>Entscheidungen</h2>
+  <p>
+    <strong>Datenschutz zuerst.</strong> Keine Konten und keine Speicherung auf dem Server: Entwürfe liegen im
+    localStorage des Browsers, und nur der zu prüfende Text geht an das Modell.
+  </p>
+  <p>
+    <strong>Modellaufrufe hinter Edge Functions.</strong> Supabase Edge Functions rufen den Hugging Face Router
+    auf, sodass keine Schlüssel beim Client landen und Modelle austauschbar sind. <Todo>welche Modelle und warum</Todo>
+  </p>
+
+  <h2>Belege</h2>
+  <p><Todo>Screenshots, ein Beispiel für die Klauselanalyse und wie du die Risikobewertungen geprüft hast</Todo></p>
+
+  <h2>Wie es weitergeht</h2>
+  <ul>
+    <li><Todo>z. B. den genauen Klauseltext hinter jeder Risikobewertung zitieren</Todo></li>
+  </ul>
+</Article>

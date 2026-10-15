@@ -4,6 +4,7 @@ import Masthead from '../components/Masthead.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 import { url } from '../lib/url';
+import { getLang, counterpart, langs, t } from '../i18n';
 
 interface Props {
   title?: string;
@@ -11,17 +12,26 @@ interface Props {
   front?: boolean;
 }
 
+const lang = getLang(Astro.url.pathname);
+const role = t(site.role, lang);
+
 const {
   title,
-  description = `${site.name}, ${site.role}. Every claim on this site has a source.`,
+  description = lang === 'de'
+    ? `${site.name}, ${role}. Jede Behauptung auf dieser Seite hat eine Quelle.`
+    : `${site.name}, ${role}. Every claim on this site has a source.`,
   front = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} · ${site.paper}` : `${site.paper} · ${site.name}, ${site.role}`;
+const fullTitle = title ? `${title} · ${site.paper}` : `${site.paper} · ${site.name}, ${role}`;
+const alternates = langs.map((l) => ({
+  lang: l,
+  href: new URL(url(counterpart(Astro.url.pathname, l)), Astro.site).href,
+}));
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,6 +39,7 @@ const fullTitle = title ? `${title} · ${site.paper}` : `${site.paper} · ${site
     <meta name="description" content={description} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
   </head>
   <body>

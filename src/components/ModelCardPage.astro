@@ -1,0 +1,113 @@
+---
+import Paper from '../layouts/Paper.astro';
+import Cite from './Cite.astro';
+import Todo from './Todo.astro';
+import { site } from '../data/site';
+import { getLang } from '../i18n';
+
+const lang = getLang(Astro.url.pathname);
+const de = lang === 'de';
+---
+
+<Paper
+  title={de ? 'Modellkarte' : 'Model card'}
+  description={de
+    ? 'Ibrahim Ali Khan, beschrieben wie ein Machine-Learning-Modell.'
+    : 'Ibrahim Ali Khan, described the way a machine-learning model would be.'}
+>
+  <header class="intro">
+    <span class="label kicker">{de ? 'Technische Daten' : 'Specifications'}</span>
+    <h1>{de ? 'Modellkarte' : 'Model card'}: ibrahim-ali-khan</h1>
+    <p>{de ? 'Version 2026.10 · Lizenz: offen für neue Stellen' : 'Version 2026.10 · Licence: open to work'}</p>
+  </header>
+
+  <dl class="card">
+    <div>
+      <dt class="label">{de ? 'Vorgesehener Einsatz' : 'Intended use'}</dt>
+      <dd>
+        {de
+          ? 'LLM-Features, RAG und KI-Agenten, Dokumenten-KI und die Full-Stack-Produktarbeit drumherum.'
+          : 'LLM features, RAG and AI agents, document AI, and the full-stack product work around them.'}<Cite id="skills" />
+      </dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Trainingsdaten' : 'Training data'}</dt>
+      <dd>
+        {de ? (
+          <>B.Eng. Electronics &amp; Communication, Siddaganga Institute of Technology (2018). M.Sc. Computer Engineering, Universität Paderborn (voraussichtlich Oktober 2026).<Cite id="education" /> Über drei Jahre Berufserfahrung.<Cite id="fullstack" /></>
+        ) : (
+          <>B.Eng. Electronics &amp; Communication, Siddaganga Institute of Technology (2018). M.Sc. Computer Engineering, Paderborn University (expected October 2026).<Cite id="education" /> 3+ years in industry.<Cite id="fullstack" /></>
+        )}
+      </dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Evaluierungen' : 'Evaluations'}</dt>
+      <dd>
+        {de ? (
+          <>≈ −50 % Release-Zeit<Cite id="optimaite-deploy" /> · +40 % Engagement<Cite id="writegenius" /> · −25 % Ladezeit<Cite id="bond" /> · +25 % Performance<Cite id="catalogsync" /> · zwei Spot Awards<Cite id="awards" /></>
+        ) : (
+          <>≈ −50% release time<Cite id="optimaite-deploy" /> · +40% engagement<Cite id="writegenius" /> · −25% load time<Cite id="bond" /> · +25% performance<Cite id="catalogsync" /> · two Spot Awards<Cite id="awards" /></>
+        )}
+      </dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Einsatzbereitschaft' : 'Deployment'}</dt>
+      <dd>{site.availability[lang]}.</dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Sprachen' : 'Languages'}</dt>
+      <dd>{de ? 'Englisch (C1), Deutsch (B1), Urdu (C1), Hindi (C1)' : 'English (C1), German (B1), Urdu (C1), Hindi (C1)'}</dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Bekannte Einschränkungen' : 'Known limitations'}</dt>
+      <dd><Todo>{de ? 'eine ehrliche, leicht witzige Einschränkung' : 'one honest, slightly funny limitation'}</Todo></dd>
+    </div>
+    <div>
+      <dt class="label">{de ? 'Kontakt' : 'Contact'}</dt>
+      <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+    </div>
+  </dl>
+</Paper>
+
+<style>
+  .intro {
+    padding: 32px 0 20px;
+    border-bottom: 4px double var(--ink);
+    max-width: 820px;
+  }
+
+  h1 {
+    margin: 10px 0 6px;
+    font: 900 clamp(34px, 4.5vw, 52px) / 1.05 var(--font-head);
+  }
+
+  .intro p {
+    margin: 0;
+    font: 700 13px var(--font-label);
+    letter-spacing: 0.06em;
+  }
+
+  .card {
+    margin: 0;
+    max-width: 820px;
+  }
+
+  .card div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  dt {
+    flex: 0 0 180px;
+    padding-top: 4px;
+  }
+
+  dd {
+    flex: 1 1 320px;
+    margin: 0;
+    font-size: 19px;
+  }
+</style>

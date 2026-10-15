@@ -1,0 +1,87 @@
+---
+import Article from '../../../layouts/Article.astro';
+import Cite from '../../../components/Cite.astro';
+import Todo from '../../../components/Todo.astro';
+---
+
+<Article
+  title="Symmetrie in programmierbarer Materie"
+  kicker="Wissenschaft · Verteilte Algorithmen"
+  status="Interaktiv folgt"
+  headline="Symmetrie finden, wenn jedes Teilchen blind ist"
+  deck="Winzige Roboter auf einem Sechseckgitter, jeder mit konstantem Speicher und nur seinen Nachbarn im Blick, finden gemeinsam heraus, ob ihre Form symmetrisch ist, in O(log⁵ n) Zeit."
+  facts={[
+    { label: 'Wo', value: 'Universität Paderborn, Teamprojekt' },
+    { label: 'Wann', value: 'Aug. 2024 – Aug. 2025' },
+    { label: 'Modell', value: 'Geometrisches Amoebot-Modell, rekonfigurierbare Schaltkreise' },
+    { label: 'Simulator', value: 'AmoebotSim (Unity)' },
+    { label: 'Ergebnis', value: 'Symmetrieerkennung in O(log⁵ n)' },
+  ]}
+  cites={['amoebots']}
+>
+  <figure class="figure">
+    <svg viewBox="0 0 208 140" role="img" aria-label="Ein Sechseck aus 19 Teilchen mit senkrechter Symmetrieachse">
+      <line x1="104" y1="2" x2="104" y2="136" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="3 3"></line>
+      <g fill="#111">
+        <circle cx="76" cy="20" r="9"></circle><circle cx="104" cy="20" r="9"></circle><circle cx="132" cy="20" r="9"></circle>
+        <circle cx="62" cy="44" r="9"></circle><circle cx="90" cy="44" r="9"></circle><circle cx="118" cy="44" r="9"></circle><circle cx="146" cy="44" r="9"></circle>
+        <circle cx="48" cy="68" r="9"></circle><circle cx="76" cy="68" r="9"></circle><circle cx="132" cy="68" r="9"></circle><circle cx="160" cy="68" r="9"></circle>
+        <circle cx="62" cy="93" r="9"></circle><circle cx="90" cy="93" r="9"></circle><circle cx="118" cy="93" r="9"></circle><circle cx="146" cy="93" r="9"></circle>
+        <circle cx="76" cy="117" r="9"></circle><circle cx="104" cy="117" r="9"></circle><circle cx="132" cy="117" r="9"></circle>
+      </g>
+      <circle cx="104" cy="68" r="9" fill="#c8102e"></circle>
+    </svg>
+    <figcaption>Abb. 1: 19 Teilchen, jedes sieht nur seine Nachbarn. In der interaktiven Version lässt sich der Verbund umformen und die Erkennung live verfolgen.</figcaption>
+  </figure>
+
+  <h2>Das Modell</h2>
+  <p>
+    Im Amoebot-Modell sitzen Teilchen auf einem Sechseckgitter, haben konstanten Speicher und kommunizieren
+    nur über „Beeps“ in rekonfigurierbaren Schaltkreisen. Selbst einfache globale Fragen sind schwer, wenn kein
+    Teilchen die ganze Form sieht.<Cite id="amoebots" />
+  </p>
+
+  <h2>Der Ansatz</h2>
+  <p>
+    Wir haben die Symmetrieerkennung auf Polynomidentitätstests über endlichen Körpern zurückgeführt: Die Form
+    wird als Binärfolge kodiert, und die Gleichheit wird probabilistisch mit modularer Arithmetik geprüft,
+    parallel entlang der Teilchenkette.
+  </p>
+
+  <h2>Mein Anteil</h2>
+  <ul>
+    <li><strong>Verteilte Zufallszahlenerzeugung:</strong> eine mehrstufige Pipeline, die Werte 0 ≤ r &lt; p über alle Blöcke erzeugt und validiert.</li>
+    <li><strong>SendValueToBlocks:</strong> ein wiederverwendbares Zwei-Runden-Protokoll, das einen Wert von einem Block über rekonfigurierbare Schaltkreise an alle anderen sendet.</li>
+    <li><strong>ComputeF:</strong> Polynomauswertung f(r) = Σ(aₑrᵉ mod p) mit modularer Exponentiation von rechts nach links, PASC-basierter Baumsummation und einer SubDivision2-Routine für den Fall, dass der Dividend kleiner als der Divisor ist.</li>
+  </ul>
+
+  <h2>Was ich gelernt habe</h2>
+  <p>
+    Verteilt zu denken war anfangs schwer. Jedes Teilchen kennt den globalen Zustand nicht, also entwirft man
+    lokale Regeln und verlässt sich darauf, dass sie die globale Antwort ergeben. Als das klick gemacht hat,
+    wurde die Einschränkung zum spannendsten Teil.
+  </p>
+  <p><Todo>den 21-seitigen Bericht verlinken, Teammitglieder und Betreuer nennen</Todo></p>
+</Article>
+
+<style>
+  .figure {
+    margin: 0 0 28px;
+    padding: 20px;
+    border: 1px solid var(--ink);
+  }
+
+  .figure svg {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .figure figcaption {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-3);
+  }
+</style>

@@ -1,0 +1,97 @@
+---
+import Paper from '../layouts/Paper.astro';
+import { sources } from '../data/sources';
+import { url } from '../lib/url';
+import { getLang, t, ui } from '../i18n';
+
+const lang = getLang(Astro.url.pathname);
+const de = lang === 'de';
+---
+
+<Paper
+  title={de ? 'Quellen' : 'Sources'}
+  description={de ? 'Alle Quellen dieser Seite, in der Reihenfolge der Fußnoten.' : 'Every source cited on this site, in footnote order.'}
+>
+  <header class="intro">
+    <span class="label kicker">{de ? 'Das Quellenressort' : 'The sources desk'}</span>
+    <h1>{de ? 'Jede Aussage und woher sie stammt' : 'Every claim, and where it comes from'}</h1>
+    <p>
+      {de
+        ? 'Die Fußnoten auf jeder Seite verweisen hierher. Was nicht durch eine dieser Quellen belegt ist, gehört nicht auf die Seite.'
+        : 'Footnote numbers on every page point here. If a claim isn’t backed by one of these, it shouldn’t be on the site.'}
+    </p>
+  </header>
+
+  <ol class="list">
+    {sources.map((s, i) => (
+      <li id={s.id}>
+        <span class="n">{i + 1}</span>
+        <div>
+          <span class="label meta">{t(s.publisher, lang)} · {t(s.date, lang)}</span>
+          <h2>{s.url ? <a href={url(s.url)}>{t(s.title, lang)}</a> : t(s.title, lang)}</h2>
+          <p>{t(s.excerpt, lang)}</p>
+          {!s.url && <span class="todo">{t(ui.addLink, lang)}</span>}
+        </div>
+      </li>
+    ))}
+  </ol>
+</Paper>
+
+<style>
+  .intro {
+    padding: 32px 0 20px;
+    border-bottom: 1px solid var(--ink);
+    max-width: 820px;
+  }
+
+  h1 {
+    margin: 10px 0;
+    font: 900 clamp(34px, 4.5vw, 52px) / 1.05 var(--font-head);
+  }
+
+  .intro p {
+    margin: 0;
+    font-size: 19px;
+    color: var(--ink-2);
+  }
+
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 820px;
+  }
+
+  li {
+    display: flex;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    scroll-margin-top: 16px;
+  }
+
+  li:target {
+    background: #fff6e0;
+  }
+
+  .n {
+    flex: 0 0 32px;
+    font: 700 22px/1.2 var(--font-head);
+    color: var(--accent);
+  }
+
+  .meta {
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    margin: 4px 0;
+    font: 700 22px/1.25 var(--font-head);
+  }
+
+  li p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+</style>

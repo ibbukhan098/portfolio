@@ -1,0 +1,444 @@
+---
+// The front page, in either edition. The language comes from the URL.
+import Cite from './Cite.astro';
+import AskTheRecord from './AskTheRecord.astro';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+import { getLang, localize, t, type Localized } from '../i18n';
+
+const lang = getLang(Astro.url.pathname);
+const de = lang === 'de';
+
+const stories: { href: string; kicker: Localized; headline: Localized; blurb: Localized; page: Localized }[] = [
+  {
+    href: '/work/thesis',
+    kicker: { en: 'Health · In progress', de: 'Gesundheit · In Arbeit' },
+    headline: {
+      en: 'Talking to health records, without saying more than they do',
+      de: 'Mit Gesundheitsakten sprechen, ohne mehr zu sagen als sie',
+    },
+    blurb: {
+      en: 'A FHIR-based hospital system with AI agents that must stay grounded, benchmarked on local vs. cloud models.',
+      de: 'Ein FHIR-basiertes Krankenhaussystem mit KI-Agenten, die belegbar bleiben müssen, verglichen auf lokalen und Cloud-Modellen.',
+    },
+    page: { en: 'Page 2', de: 'Seite 2' },
+  },
+  {
+    href: '/work/clausecraft',
+    kicker: { en: 'Legal tech · Live', de: 'Legal Tech · Online' },
+    headline: {
+      en: 'The job-assignment MVP that became a full product',
+      de: 'Das Bewerbungs-MVP, das zum fertigen Produkt wurde',
+    },
+    blurb: {
+      en: 'ClauseCraft drafts contracts, rates each clause for risk and flags what’s missing.',
+      de: 'ClauseCraft entwirft Verträge, bewertet jede Klausel nach Risiko und zeigt, was fehlt.',
+    },
+    page: { en: 'Page 3', de: 'Seite 3' },
+  },
+  {
+    href: '/work/amoebots',
+    kicker: { en: 'Science · Interactive', de: 'Wissenschaft · Interaktiv' },
+    headline: {
+      en: 'Finding symmetry when every particle is blind',
+      de: 'Symmetrie finden, wenn jedes Teilchen blind ist',
+    },
+    blurb: {
+      en: 'A distributed algorithm for programmable matter that runs in O(log⁵ n) time.',
+      de: 'Ein verteilter Algorithmus für programmierbare Materie mit einer Laufzeit von O(log⁵ n).',
+    },
+    page: { en: 'Page 4', de: 'Seite 4' },
+  },
+];
+
+const index: { name: Localized; change: string; note: Localized; cite: string }[] = [
+  { name: { en: 'Optimaite release time', de: 'Optimaite Release-Zeit' }, change: '≈ −50%', note: { en: 'Docker + Coolify deployments', de: 'Deployments mit Docker + Coolify' }, cite: 'optimaite-deploy' },
+  { name: { en: 'WriteGenius engagement', de: 'WriteGenius Engagement' }, change: '+40%', note: { en: 'over 6 months, team of 4', de: 'in 6 Monaten, Team aus 4' }, cite: 'writegenius' },
+  { name: { en: 'BOND load time', de: 'BOND Ladezeit' }, change: '−25%', note: { en: 'AngularJS → React migration', de: 'Migration AngularJS → React' }, cite: 'bond' },
+  { name: { en: 'Catalog Sync performance', de: 'Catalog Sync Performance' }, change: '+25%', note: { en: 'GraphQL + Shopify/WooCommerce', de: 'GraphQL + Shopify/WooCommerce' }, cite: 'catalogsync' },
+  { name: { en: 'LineSheets engagement', de: 'LineSheets Engagement' }, change: '+35%', note: { en: 'UI revamp in Vue', de: 'UI-Überarbeitung mit Vue' }, cite: 'linesheets' },
+  { name: { en: 'Spot Awards', de: 'Spot Awards' }, change: '2', note: { en: 'top performer, Q4 2022 and Q2 2023', de: 'Top Performer, Q4 2022 und Q2 2023' }, cite: 'awards' },
+];
+---
+
+<div class="front">
+  <article class="lead">
+    <span class="label kicker">{de ? 'KI-Engineering' : 'AI engineering'}</span>
+    {de ? (
+      <>
+        <h1>Paderborner Ingenieur baut KI, die nur sagt, was sich belegen lässt</h1>
+        <p class="deck">Der Founding Engineer von Optimaite und Forscher am Fraunhofer IEM sagt: Schwierig ist nicht die Antwort, sondern der Beleg.</p>
+      </>
+    ) : (
+      <>
+        <h1>Local engineer builds AI that only says what the record supports</h1>
+        <p class="deck">Optimaite’s founding engineer and Fraunhofer IEM researcher argues the hard part isn’t the answer. It’s the proof.</p>
+      </>
+    )}
+    <div class="byline label">
+      <span>{de ? 'Von' : 'By'} {site.name}</span>
+      <span>{de ? 'Jede Aussage belegt' : 'Every claim sourced'}</span>
+    </div>
+
+    <div class="lead-body">
+      <div class="columns">
+        {de ? (
+          <>
+            <p>
+              <span class="dropcap">I</span>brahim Ali Khan ist Founding Engineer bei Optimaite, einem Spin-off
+              des Fraunhofer IEM, das eine datensouveräne KI-Plattform für Kanzleien entwickelt.<Cite id="optimaite" /> Er
+              baut ihre RAG-Pipelines und werkzeugnutzenden Agenten, mit Tracing, Audit-Logs und Mandantentrennung
+              für sensible Dokumente.<Cite id="optimaite-rag" /> Außerdem arbeitet er als wissenschaftliche Hilfskraft
+              im GenAI Incubator des Fraunhofer IEM.<Cite id="fraunhofer" />
+            </p>
+            <p>
+              Seine Masterarbeit ist ein datenschutzfreundliches, FHIR-basiertes Krankenhaussystem,<Cite id="thesis" /> in
+              dem Patientinnen, Patienten und Ärzte Gesundheitsakten in Alltagssprache befragen können. Der Assistent
+              sagt dabei nichts, was die Akte nicht belegt.<Cite id="thesis-post" />
+            </p>
+            <p>
+              Vor der KI hat er über drei Jahre Full-Stack-Produkte ausgeliefert,<Cite id="fullstack" /> darunter eine
+              React-Migration, die die Ladezeiten um 25 % senkte,<Cite id="bond" /> und einen Vertragsassistenten, der als
+              Bewerbungsaufgabe begann und zum fertigen Produkt wurde.<Cite id="clausecraft" />
+            </p>
+            <p><a href="#work" class="continued">Fortsetzung unter Arbeiten ›</a></p>
+          </>
+        ) : (
+          <>
+            <p>
+              <span class="dropcap">I</span>brahim Ali Khan is a Founding Engineer at Optimaite, a Fraunhofer
+              IEM spin-off building a data-sovereign AI platform for law firms.<Cite id="optimaite" /> He builds
+              its RAG pipelines and tool-using agents, with tracing, audit logs and tenant isolation for sensitive
+              documents.<Cite id="optimaite-rag" /> He also works as a research assistant in Fraunhofer IEM’s
+              GenAI Incubator.<Cite id="fraunhofer" />
+            </p>
+            <p>
+              His master’s thesis is a privacy-preserving, FHIR-based hospital system<Cite id="thesis" /> where
+              patients and doctors can question health records in plain language, and the assistant never says
+              anything the record cannot support.<Cite id="thesis-post" />
+            </p>
+            <p>
+              Before AI, he spent 3+ years shipping full-stack products<Cite id="fullstack" />, including a
+              React migration that cut load times by 25%<Cite id="bond" /> and a contract assistant that
+              started as a job assignment and turned into a full product.<Cite id="clausecraft" />
+            </p>
+            <p><a href="#work" class="continued">Continued in Work ›</a></p>
+          </>
+        )}
+      </div>
+
+      <figure class="portrait">
+        <div class="photo"><span class="todo">{de ? 'public/portrait.jpg ergänzen' : 'Add public/portrait.jpg'}</span></div>
+        <figcaption>
+          {de
+            ? 'Der Ingenieur in Paderborn, wo er gerade seinen Master abschließt.'
+            : 'The engineer in Paderborn, where he is finishing his master’s degree.'}
+        </figcaption>
+      </figure>
+    </div>
+  </article>
+
+  <aside class="sidebar">
+    <AskTheRecord />
+
+    <section class="classifieds" aria-labelledby="classifieds-heading">
+      <h2 id="classifieds-heading" class="label">{de ? 'Kleinanzeigen' : 'Classifieds'}</h2>
+      {de ? (
+        <>
+          <p class="ad-head">GESUCHT: Stelle im KI-Engineering.</p>
+          <p>
+            {site.availability.de}. Englisch und Deutsch. LLM-Features, Agenten, Dokumenten-KI, Full-Stack.
+            Zuschriften an: <a href={`mailto:${site.email}`}>{site.email}</a>
+          </p>
+        </>
+      ) : (
+        <>
+          <p class="ad-head">WANTED: AI engineering role.</p>
+          <p>
+            {site.availability.en}. English and German. LLM features, agents, document AI, full-stack.
+            Inquire: <a href={`mailto:${site.email}`}>{site.email}</a>
+          </p>
+        </>
+      )}
+    </section>
+  </aside>
+</div>
+
+<section id="work" class="edition double-rule" aria-labelledby="edition-heading">
+  <h2 id="edition-heading" class="label">{de ? 'Außerdem in dieser Ausgabe' : 'Also in this edition'}</h2>
+  <div class="stories">
+    {stories.map((s) => (
+      <a href={url(localize(s.href, lang))} class="story">
+        <span class="label kicker">{t(s.kicker, lang)}</span>
+        <span class="story-head">{t(s.headline, lang)}</span>
+        <span class="story-blurb">{t(s.blurb, lang)} <span class="label">{t(s.page, lang)} ›</span></span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="markets rule-top" aria-labelledby="markets-heading">
+  <div class="markets-head">
+    <h2 id="markets-heading" class="label">{de ? 'Wirtschaft · Der Engineering-Index' : 'Markets · The Engineering Index'}</h2>
+    <span class="label muted">{de ? '2021 – heute' : '2021 – today'}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{de ? 'Wert' : 'Instrument'}</th>
+          <th scope="col">{de ? 'Veränderung' : 'Change'}</th>
+          <th scope="col">{de ? 'Anmerkung' : 'Note'}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {index.map((row) => (
+          <tr>
+            <th scope="row">{t(row.name, lang)}</th>
+            <td class="change">{row.change}<Cite id={row.cite} /></td>
+            <td>{t(row.note, lang)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .front {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    padding-top: 28px;
+  }
+
+  .lead {
+    flex: 2 1 640px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  h1 {
+    margin: 0;
+    font: 900 clamp(38px, 5.2vw, 64px) / 1.02 var(--font-head);
+    letter-spacing: -0.015em;
+  }
+
+  .deck {
+    margin: 0;
+    font: italic 400 clamp(19px, 2vw, 23px) / 1.4 var(--font-head);
+    color: var(--ink-2);
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-3);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .lead-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .columns {
+    flex: 1 1 360px;
+    min-width: 0;
+    columns: 220px 2;
+    column-gap: 24px;
+    column-rule: 1px solid var(--rule);
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  .columns p {
+    margin: 0 0 12px;
+  }
+
+  .dropcap {
+    float: left;
+    font: 900 66px/0.8 var(--font-head);
+    padding: 6px 8px 0 0;
+  }
+
+  .continued {
+    font-weight: 600;
+  }
+
+  .portrait {
+    flex: 1 1 240px;
+    min-width: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .photo {
+    aspect-ratio: 4 / 5;
+    background: #e4e4e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  figcaption {
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink-3);
+  }
+
+  .sidebar {
+    flex: 1 1 340px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    border-left: 1px solid var(--ink);
+    padding-left: 28px;
+  }
+
+  .classifieds {
+    border: 2px solid var(--ink);
+    padding: 16px;
+  }
+
+  .classifieds h2 {
+    margin: 0 0 8px;
+  }
+
+  .classifieds p {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .classifieds .ad-head {
+    font: 700 22px/1.15 var(--font-head);
+    margin-bottom: 6px;
+  }
+
+  .edition {
+    margin-top: 36px;
+    padding-top: 14px;
+  }
+
+  .edition h2,
+  .markets h2 {
+    margin: 0;
+  }
+
+  .stories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 14px;
+  }
+
+  .story {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 20px 12px;
+    text-decoration: none;
+    border-left: 1px solid var(--rule);
+  }
+
+  .story:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .story-head {
+    font: 700 26px/1.12 var(--font-head);
+  }
+
+  .story:hover .story-head {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .story-blurb {
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+
+  .markets {
+    margin-top: 32px;
+    padding-top: 12px;
+  }
+
+  .markets-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .muted {
+    color: var(--ink-3);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 10px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: 16px;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  thead th {
+    font: 800 11px/1.3 var(--font-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  .change {
+    font: 700 18px var(--font-label);
+    white-space: nowrap;
+  }
+
+  /* Below this width the sidebar wraps under the lead story. */
+  @media (max-width: 1080px) {
+    .sidebar {
+      border-left: 0;
+      padding-left: 0;
+      border-top: 1px solid var(--ink);
+      padding-top: 16px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .story,
+    .story:first-child {
+      padding: 12px 0;
+      border-left: 0;
+      border-top: 1px solid var(--rule);
+    }
+  }
+</style>

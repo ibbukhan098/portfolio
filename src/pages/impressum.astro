@@ -1,56 +1,55 @@
 ---
 import Paper from '../layouts/Paper.astro';
-import Todo from '../components/Todo.astro';
 import { site } from '../data/site';
 import { url } from '../lib/url';
 ---
 
-<Paper title="Impressum" description="Legal notice for this website.">
-  <article class="legal" lang="de">
+<Paper title="Legal notice" description="Legal notice (Impressum) for this website.">
+  <article class="legal">
     <span class="label kicker">Legal notice</span>
-    <h1>Impressum</h1>
-    <p class="en" lang="en">Legal notice as required by German law. The English summary: this site is run by Ibrahim Ali Khan, Paderborn, Germany.</p>
+    <h1>Legal notice</h1>
+    <p class="note">
+      English translation of the <a href={url('/de/impressum')}>German Impressum</a>. If the two differ, the
+      German version applies.
+    </p>
 
-    <h2>Angaben gemäß § 5 DDG</h2>
+    <h2>Information pursuant to § 5 DDG (German Digital Services Act)</h2>
     <address>
       {site.name}<br />
-      {site.address.street ? <>{site.address.street}<br /></> : <><Todo>Straße und Hausnummer</Todo><br /></>}
+      {site.address.street}<br />
       {site.address.postcode} {site.address.city}<br />
-      {site.address.country}
+      {site.address.country.en}
     </address>
 
-    <h2>Kontakt</h2>
+    <h2>Contact</h2>
     <p>
-      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a><br />
-      Telefon: <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>
+      Email: <a href={`mailto:${site.email}`}>{site.email}</a><br />
+      Phone: <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>
     </p>
 
-    <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+    <h2>Responsible for content under § 18(2) MStV (German Interstate Media Treaty)</h2>
+    <p>{site.name}, address as above.</p>
+
+    <h2>Liability for content</h2>
     <p>
-      {site.name}, Anschrift wie oben.
+      The content of this site was written with care, but I cannot guarantee that it is accurate, complete or
+      up to date. As a service provider I am responsible for my own content on these pages under general law.
     </p>
 
-    <h2>Haftung für Inhalte</h2>
+    <h2>Liability for links</h2>
     <p>
-      Die Inhalte dieser Seite wurden mit Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und
-      Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen. Als Diensteanbieter bin ich gemäß den
-      allgemeinen Gesetzen für eigene Inhalte auf diesen Seiten verantwortlich.
+      This site links to external third-party websites (such as LinkedIn and GitHub) whose content I do not
+      control. The respective provider is always responsible for that content. If I become aware of any legal
+      violation, I will remove the link immediately.
     </p>
 
-    <h2>Haftung für Links</h2>
+    <h2>Copyright</h2>
     <p>
-      Diese Seite enthält Links zu externen Websites Dritter (z. B. LinkedIn und GitHub), auf deren Inhalte
-      ich keinen Einfluss habe. Für diese fremden Inhalte ist stets der jeweilige Anbieter verantwortlich.
-      Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.
+      The content and works I created on this site are subject to German copyright law. The site’s source code
+      is available on <a href={site.links.github}>GitHub</a>.
     </p>
 
-    <h2>Urheberrecht</h2>
-    <p>
-      Die von mir erstellten Inhalte und Werke auf dieser Seite unterliegen dem deutschen Urheberrecht. Der
-      Quellcode der Website ist auf <a href={site.links.github}>GitHub</a> einsehbar.
-    </p>
-
-    <p class="see-also"><a href={url('/datenschutz')}>Datenschutzerklärung ›</a></p>
+    <p class="see-also"><a href={url('/datenschutz')}>Privacy policy ›</a></p>
   </article>
 </Paper>
 
@@ -76,7 +75,7 @@ import { url } from '../lib/url';
     font-style: normal;
   }
 
-  .en {
+  .note {
     font-style: italic;
     color: var(--ink-3);
   }

@@ -1,0 +1,69 @@
+---
+import Article from '../../../layouts/Article.astro';
+import Cite from '../../../components/Cite.astro';
+import Todo from '../../../components/Todo.astro';
+---
+
+<Article
+  title="Mit Gesundheitsakten sprechen"
+  kicker="Gesundheit · Masterarbeit"
+  status="Forschung läuft"
+  headline="Mit Gesundheitsakten sprechen, ohne mehr zu sagen als sie"
+  deck="Ein modulares, FHIR-basiertes Krankenhaussystem für das deutsche Gesundheitswesen. Patientinnen und Patienten bestimmen, wer ihre Daten sieht, und die KI-Agenten darauf werden daran gemessen, ob sie bei der Akte bleiben."
+  facts={[
+    { label: 'Titel', value: 'AI-Assisted Hospital Management: A Modular, FHIR-Based System with Privacy-Preserving Design for the German Healthcare Context' },
+    { label: 'Rolle', value: 'Autor, Masterarbeit M.Sc. Computer Engineering' },
+    { label: 'Wo', value: 'Fraunhofer IEM, Paderborn' },
+    // TODO: confirm both people are happy to be named before launch
+    { label: 'Betreuung', value: 'Tommy Falkowski, Fraunhofer IEM' },
+    { label: 'Klinischer Input', value: 'Dr. Szabolcs Szeöke, Wirbelsäulenzentrum, Brüderkrankenhaus St. Josef Paderborn' },
+    { label: 'Grundlagen', value: 'HL7 FHIR, rollenbasierter Zugriff, Audit-Logging, lokale und Cloud-LLMs' },
+  ]}
+  cites={['thesis', 'thesis-post', 'fraunhofer']}
+  next={{ href: '/work/clausecraft', headline: 'Das Bewerbungs-MVP, das zum fertigen Produkt wurde' }}
+>
+  <h2>Ich wollte Arzt werden. Das hier ist ein anderer Weg dorthin.</h2>
+  <p>
+    Als Kind wollte ich Arzt werden, weil Ärzte jeden Tag Menschen helfen. Gelandet bin ich in der Technik.
+    In dieser Arbeit treffen sich beide Welten: Wenn ein Assistent Fragen zu einer Akte zuverlässig
+    beantwortet, gewinnen Ärzte Zeit für ihre Patientinnen und Patienten.<Cite id="thesis-post" />
+  </p>
+  <blockquote>Schwierig ist nicht, dass ein Modell antwortet. Schwierig ist, dass Patienten, Ärzte und Aufsichtsbehörden sich auf die Antwort verlassen können.</blockquote>
+
+  <h2>Was ich baue</h2>
+  <p>
+    Ein modulares Krankenhausmanagementsystem, das nativ HL7 FHIR spricht, damit Akten ohne eigene
+    Schnittstellen zwischen Systemen wandern können. Der Zugriff hängt von der Rolle ab, und jeder Lese- und
+    Schreibzugriff wird protokolliert.<Cite id="thesis" />
+  </p>
+
+  <h2>Drei Regeln, die das System einhalten muss</h2>
+  <ol>
+    <li>
+      <strong>Die Patientin, der Patient behält die Kontrolle.</strong> Die Datenverarbeitung ist auf die DSGVO
+      und die elektronische Patientenakte (ePA) ausgelegt: Patienten entscheiden, was geteilt wird, und die
+      Pseudonymisierung lässt sich nur aufheben, wenn es nötig ist.<Cite id="thesis" />
+    </li>
+    <li><strong>Keine unbelegten Aussagen.</strong> Jede Aussage muss auf eine Stelle in der Akte zurückgehen. Wenn nicht, sagt der Assistent das.<Cite id="thesis-post" /></li>
+    <li><strong>Leicht überprüfbar.</strong> Ärzte müssen eine Antwort in Sekunden prüfen können, ohne die ganze Akte neu zu lesen.</li>
+  </ol>
+
+  <h2>Wie die Agenten bewertet werden</h2>
+  <p>
+    Jeder rollenspezifische Agent wird auf lokalen und Cloud-LLMs verglichen: nach Relevanz, Belegbarkeit,
+    Halluzinationsrate, Latenz, Kosten und benötigter Infrastruktur.<Cite id="thesis" /> Lokale Modelle halten
+    die Daten im Krankenhaus, Cloud-Modelle antworten womöglich besser. Die Arbeit misst diesen Zielkonflikt,
+    statt ihn vorauszusetzen.
+  </p>
+
+  <h2>Belege</h2>
+  <p><Todo>Ergebnistabelle: verglichene Modelle, Belegbarkeit und Halluzinationsrate, Latenz, Kosten</Todo></p>
+  <p><strong>Ein Fehler, den ich gefunden habe:</strong> <Todo>die Frage, an der es scheiterte, und was falsch gesagt wurde</Todo></p>
+  <p><strong>Was ich geändert habe:</strong> <Todo>die Korrektur und die Kennzahl vorher und nachher</Todo></p>
+
+  <h2>Wie es weitergeht</h2>
+  <ul>
+    <li><Todo>was du mit echten Klinikerinnen und Klinikern testen würdest</Todo></li>
+    <li><Todo>eine noch ungelöste Einschränkung</Todo></li>
+  </ul>
+</Article>

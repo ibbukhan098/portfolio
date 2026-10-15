@@ -4,58 +4,69 @@
 import Cite from './Cite.astro';
 import { questions } from '../data/ask';
 import { site } from '../data/site';
+import { getLang } from '../i18n';
+
+const lang = getLang(Astro.url.pathname);
+const de = lang === 'de';
+const sourceCount = (n: number) =>
+  de ? `Belegt · ${n} ${n === 1 ? 'Quelle' : 'Quellen'}` : `Verified · ${n} ${n === 1 ? 'source' : 'sources'}`;
+const declined = de ? 'Kein Kommentar: nicht belegt' : 'No comment: not on the record';
 ---
 
 <section class="ask" aria-labelledby="ask-heading">
-  <div class="head"><h2 id="ask-heading" class="label">Readers ask the Record</h2></div>
+  <div class="head"><h2 id="ask-heading" class="label">{de ? 'Leser fragen den Record' : 'Readers ask the Record'}</h2></div>
 
-  <div class="questions" role="group" aria-label="Questions">
+  <div class="questions" role="group" aria-label={de ? 'Fragen' : 'Questions'}>
     {questions.map((q, i) => (
       <button type="button" class="q" data-q={q.id} aria-pressed={i === 0 ? 'true' : 'false'}>
-        <span class="q-mark">Q.</span>
-        <span>{q.question}</span>
+        <span class="q-mark">{de ? 'F.' : 'Q.'}</span>
+        <span>{q.question[lang]}</span>
       </button>
     ))}
   </div>
 
   <div class="answers" aria-live="polite">
-    <p class="nearest label" hidden>Nearest question on file: <span></span></p>
+    <p class="nearest label" hidden>{de ? 'Nächste passende Frage:' : 'Nearest question on file:'} <span></span></p>
     {questions.map((q, i) => (
-      <div class="answer" data-answer={q.id} hidden={i !== 0}>
+      <div class="answer" data-answer={q.id} data-question={q.question[lang]} hidden={i !== 0}>
         {q.declined ? (
-          <span class="label status declined">No comment: not on the record</span>
+          <span class="label status declined">{declined}</span>
         ) : (
-          <span class="label status verified">
-            Verified · {q.answer.filter((p) => p.cite).length} source{q.answer.filter((p) => p.cite).length === 1 ? '' : 's'}
-          </span>
+          <span class="label status verified">{sourceCount(q.answer.filter((p) => p.cite).length)}</span>
         )}
         <p>
           <span class="a-mark">A.</span>
           {q.answer.map((part) => (
-            <>{part.text}{part.cite && <Cite id={part.cite} />}</>
+            <>{part.text[lang]}{part.cite && <Cite id={part.cite} />}</>
           ))}
         </p>
       </div>
     ))}
     <div class="answer" data-answer="none" hidden>
-      <span class="label status declined">No comment: not on the record</span>
+      <span class="label status declined">{declined}</span>
       <p>
         <span class="a-mark">A.</span>
-        The Record has no source that answers that, so it won’t guess. Try one of the questions above,
-        or <a href={`mailto:${site.email}`}>write to the editor</a>.
+        {de ? (
+          <>Dafür hat der Record keine Quelle, also rät er nicht. Probieren Sie eine der Fragen oben oder <a href={`mailto:${site.email}`}>schreiben Sie der Redaktion</a>.</>
+        ) : (
+          <>The Record has no source that answers that, so it won’t guess. Try one of the questions above, or <a href={`mailto:${site.email}`}>write to the editor</a>.</>
+        )}
       </p>
     </div>
   </div>
 
   <form class="letter">
-    <label for="ask-input" class="sr-only">Your question</label>
-    <input id="ask-input" name="q" type="text" placeholder="Send a letter to the editor…" autocomplete="off" />
-    <button type="submit" class="label">Send</button>
+    <label for="ask-input" class="sr-only">{de ? 'Ihre Frage' : 'Your question'}</label>
+    <input id="ask-input" name="q" type="text" placeholder={de ? 'Leserbrief an die Redaktion…' : 'Send a letter to the editor…'} autocomplete="off" />
+    <button type="submit" class="label">{de ? 'Senden' : 'Send'}</button>
   </form>
 
   <p class="corrections">
-    <strong class="label">Corrections</strong> None. Answers come from a fixed set of sourced questions,
-    and anything else is declined.
+    {de ? (
+      <><strong class="label">Korrekturen</strong> Keine. Die Antworten stammen aus festen, belegten Fragen; alles andere wird abgelehnt.</>
+    ) : (
+      <><strong class="label">Corrections</strong> None. Answers come from a fixed set of sourced questions, and anything else is declined.</>
+    )}
   </p>
 </section>
 
@@ -87,7 +98,8 @@ import { site } from '../data/site';
       if (!text) return;
       const match = matchQuestion(text);
       if (match) {
-        nearest.querySelector('span')!.textContent = match.question;
+        const shown = root.querySelector<HTMLElement>(`[data-answer="${match.id}"]`);
+        nearest.querySelector('span')!.textContent = shown?.dataset.question ?? '';
         nearest.hidden = false;
         show(match.id);
       } else {

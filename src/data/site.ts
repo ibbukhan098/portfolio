@@ -1,30 +1,26 @@
+import type { Localized } from '../i18n';
+
 export const site = {
   name: 'Ibrahim Ali Khan',
   paper: 'The Ibrahim Record',
-  motto: 'All the claims that are fit to cite.',
-  role: 'AI Software Engineer',
+  role: { en: 'AI Software Engineer', de: 'AI Software Engineer' } satisfies Localized,
   location: 'Paderborn',
   email: 'ibbukhan098@gmail.com',
   phone: '+49 1556 0382007',
-  // Used by the Impressum and Datenschutz pages.
+  // Used by the Impressum and privacy pages.
   address: {
-    street: '', // TODO: street and house number (required by § 5 DDG)
+    street: 'c/o garage33, Ausblick 1',
     postcode: '33100',
     city: 'Paderborn',
-    country: 'Deutschland',
+    country: { en: 'Germany', de: 'Deutschland' } satisfies Localized,
   },
   links: {
     linkedin: 'https://www.linkedin.com/in/ibrahimalik/',
     github: 'https://github.com/ibbukhan098',
     cv: '/cv.pdf',
   },
-  availability: 'Full-time from November 2026 · Germany · on-site, hybrid or remote',
+  availability: {
+    en: 'Full-time from November 2026 · Germany · on-site, hybrid or remote',
+    de: 'Vollzeit ab November 2026 · Deutschland · vor Ort, hybrid oder remote',
+  } satisfies Localized,
 };
-
-export const nav = [
-  { href: '/', label: 'Front page' },
-  { href: '/#work', label: 'Work' },
-  { href: '/model-card', label: 'Model card' },
-  { href: '/sources', label: 'Sources' },
-  { href: site.links.cv, label: 'CV' },
-];

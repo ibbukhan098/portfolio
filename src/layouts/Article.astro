@@ -4,6 +4,7 @@
 import Paper from './Paper.astro';
 import { getSource } from '../data/sources';
 import { url } from '../lib/url';
+import { getLang, localize, t, ui } from '../i18n';
 
 interface Fact {
   label: string;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 const { title, kicker, headline, deck, status, facts, cites, next } = Astro.props;
+const lang = getLang(Astro.url.pathname);
 const cited = cites.map(getSource);
 ---
 
@@ -43,7 +45,7 @@ const cited = cites.map(getSource);
 
       <aside class="factbox">
         <section>
-          <h2 class="label">Fact box</h2>
+          <h2 class="label">{t(ui.factBox, lang)}</h2>
           <dl>
             {facts.map((f) => (
               <div>
@@ -54,13 +56,13 @@ const cited = cites.map(getSource);
           </dl>
         </section>
         <section>
-          <h2 class="label">Sources in this story</h2>
+          <h2 class="label">{t(ui.storySources, lang)}</h2>
           <ol>
             {cited.map((s) => (
               <li>
-                <a href={url(`/sources#${s.id}`)}>
+                <a href={url(localize(`/sources#${s.id}`, lang))}>
                   <span class="n">{s.n}</span>
-                  <span>{s.title}</span>
+                  <span>{t(s.title, lang)}</span>
                 </a>
               </li>
             ))}
@@ -70,8 +72,8 @@ const cited = cites.map(getSource);
     </div>
 
     {next && (
-      <a class="next double-rule" href={url(next.href)}>
-        <span class="label">Next story ›</span>
+      <a class="next double-rule" href={url(localize(next.href, lang))}>
+        <span class="label">{t(ui.nextStory, lang)}</span>
         <span class="next-head">{next.headline}</span>
       </a>
     )}

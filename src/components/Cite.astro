@@ -1,24 +1,26 @@
 ---
-// A footnote marker. Hover or focus shows the source; click jumps to it on /sources.
+// A footnote marker. Hover or focus shows the source; click jumps to it on the sources page.
 import { getSource } from '../data/sources';
 import { url } from '../lib/url';
+import { getLang, localize, t, ui } from '../i18n';
 
 interface Props {
   id: string;
 }
 
+const lang = getLang(Astro.url.pathname);
 const source = getSource(Astro.props.id);
 const tipId = `tip-${source.id}-${crypto.randomUUID().slice(0, 8)}`;
 ---
 
 <span class="cite-wrap"><a
     class="cite"
-    href={url(`/sources#${source.id}`)}
+    href={url(localize(`/sources#${source.id}`, lang))}
     aria-describedby={tipId}
-    aria-label={`Source ${source.n}`}>{source.n}</a><span class="tip" role="tooltip" id={tipId}>
-    <span class="tip-meta">{source.publisher} · {source.date}</span>
-    <span class="tip-title">{source.title}</span>
-    <span class="tip-excerpt">{source.excerpt}</span>
+    aria-label={`${t(ui.source, lang)} ${source.n}`}>{source.n}</a><span class="tip" role="tooltip" id={tipId}>
+    <span class="tip-meta">{t(source.publisher, lang)} · {t(source.date, lang)}</span>
+    <span class="tip-title">{t(source.title, lang)}</span>
+    <span class="tip-excerpt">{t(source.excerpt, lang)}</span>
   </span></span>
 
 <style>

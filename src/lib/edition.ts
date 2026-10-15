@@ -25,11 +25,11 @@ function isoWeek(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-export function edition(date = new Date()) {
+export function edition(lang: 'en' | 'de' = 'en', date = new Date()) {
   return {
     volume: toRoman(date.getFullYear() - FIRST_YEAR + 1),
     number: isoWeek(date),
-    dateline: date.toLocaleDateString('en-GB', {
+    dateline: date.toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',

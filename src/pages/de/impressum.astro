@@ -1,0 +1,88 @@
+---
+import Paper from '../../layouts/Paper.astro';
+import Todo from '../../components/Todo.astro';
+import { site } from '../../data/site';
+import { url } from '../../lib/url';
+---
+
+<Paper title="Impressum" description="Impressum dieser Website.">
+  <article class="legal">
+    <span class="label kicker">Rechtliches</span>
+    <h1>Impressum</h1>
+    <p class="en">Dies ist die rechtlich maßgebliche Fassung.</p>
+
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <address>
+      {site.name}<br />
+      {site.address.street ? <>{site.address.street}<br /></> : <><Todo>Straße und Hausnummer</Todo><br /></>}
+      {site.address.postcode} {site.address.city}<br />
+      {site.address.country.de}
+    </address>
+
+    <h2>Kontakt</h2>
+    <p>
+      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a><br />
+      Telefon: <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>
+    </p>
+
+    <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+    <p>
+      {site.name}, Anschrift wie oben.
+    </p>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Die Inhalte dieser Seite wurden mit Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und
+      Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen. Als Diensteanbieter bin ich gemäß den
+      allgemeinen Gesetzen für eigene Inhalte auf diesen Seiten verantwortlich.
+    </p>
+
+    <h2>Haftung für Links</h2>
+    <p>
+      Diese Seite enthält Links zu externen Websites Dritter (z. B. LinkedIn und GitHub), auf deren Inhalte
+      ich keinen Einfluss habe. Für diese fremden Inhalte ist stets der jeweilige Anbieter verantwortlich.
+      Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.
+    </p>
+
+    <h2>Urheberrecht</h2>
+    <p>
+      Die von mir erstellten Inhalte und Werke auf dieser Seite unterliegen dem deutschen Urheberrecht. Der
+      Quellcode der Website ist auf <a href={site.links.github}>GitHub</a> einsehbar.
+    </p>
+
+    <p class="see-also"><a href={url('/de/datenschutz')}>Datenschutzerklärung ›</a></p>
+  </article>
+</Paper>
+
+<style>
+  .legal {
+    max-width: 720px;
+    padding: 32px 0;
+  }
+
+  h1 {
+    font: 900 44px/1.1 var(--font-head);
+    margin: 10px 0 12px;
+  }
+
+  h2 {
+    font: 700 22px/1.25 var(--font-head);
+    margin: 28px 0 8px;
+  }
+
+  p,
+  address {
+    margin: 0 0 12px;
+    font-style: normal;
+  }
+
+  .en {
+    font-style: italic;
+    color: var(--ink-3);
+  }
+
+  .see-also {
+    margin-top: 32px;
+    font-weight: 600;
+  }
+</style>

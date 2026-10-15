@@ -1,16 +1,20 @@
 ---
 import { site } from '../data/site';
 import { url } from '../lib/url';
+import { getLang, localize, t, ui } from '../i18n';
+
+const lang = getLang(Astro.url.pathname);
+const link = (path: string) => url(localize(path, lang));
 ---
 
 <footer class="label">
-  <span>© {new Date().getFullYear()} {site.paper}. No cookies, no tracking.</span>
+  <span>© {new Date().getFullYear()} {site.paper}. {t(ui.footerNote, lang)}</span>
   <span class="links">
-    {site.links.github && <a href={site.links.github}>GitHub</a>}
+    <a href={site.links.github}>GitHub</a>
     <a href={site.links.linkedin}>LinkedIn</a>
-    <a href={url('/sources')}>Sources</a>
-    <a href={url('/impressum')}>Impressum</a>
-    <a href={url('/datenschutz')}>Datenschutz</a>
+    <a href={link('/sources')}>{lang === 'de' ? 'Quellen' : 'Sources'}</a>
+    <a href={link('/impressum')}>{lang === 'de' ? 'Impressum' : 'Legal notice'}</a>
+    <a href={link('/datenschutz')}>{lang === 'de' ? 'Datenschutz' : 'Privacy'}</a>
   </span>
 </footer>
 
