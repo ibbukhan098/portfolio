@@ -1,6 +1,7 @@
 ---
 // A footnote marker. Hover or focus shows the source; click jumps to it on /sources.
 import { getSource } from '../data/sources';
+import { url } from '../lib/url';
 
 interface Props {
   id: string;
@@ -12,7 +13,7 @@ const tipId = `tip-${source.id}-${crypto.randomUUID().slice(0, 8)}`;
 
 <span class="cite-wrap"><a
     class="cite"
-    href={`/sources#${source.id}`}
+    href={url(`/sources#${source.id}`)}
     aria-describedby={tipId}
     aria-label={`Source ${source.n}`}>{source.n}</a><span class="tip" role="tooltip" id={tipId}>
     <span class="tip-meta">{source.publisher} · {source.date}</span>

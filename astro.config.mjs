@@ -1,5 +1,9 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
-export default defineConfig({});
+// Served from GitHub Pages at https://ibbukhan098.github.io/portfolio.
+// With a custom domain, set `site` to it and remove `base`.
+export default defineConfig({
+  site: 'https://ibbukhan098.github.io',
+  base: '/portfolio',
+});

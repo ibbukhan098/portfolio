@@ -3,6 +3,7 @@ import Paper from '../layouts/Paper.astro';
 import Cite from '../components/Cite.astro';
 import AskTheRecord from '../components/AskTheRecord.astro';
 import { site } from '../data/site';
+import { url } from '../lib/url';
 
 const stories = [
   {
@@ -99,7 +100,7 @@ const index = [
     <h2 id="edition-heading" class="label">Also in this edition</h2>
     <div class="stories">
       {stories.map((s) => (
-        <a href={s.href} class="story">
+        <a href={url(s.href)} class="story">
           <span class="label kicker">{s.kicker}</span>
           <span class="story-head">{s.headline}</span>
           <span class="story-blurb">{s.blurb} <span class="label">{s.page} ›</span></span>

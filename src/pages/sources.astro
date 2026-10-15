@@ -1,6 +1,7 @@
 ---
 import Paper from '../layouts/Paper.astro';
 import { sources } from '../data/sources';
+import { url } from '../lib/url';
 ---
 
 <Paper title="Sources" description="Every source cited on this site, in footnote order.">
@@ -16,7 +17,7 @@ import { sources } from '../data/sources';
         <span class="n">{i + 1}</span>
         <div>
           <span class="label meta">{s.publisher} · {s.date}</span>
-          <h2>{s.url ? <a href={s.url}>{s.title}</a> : s.title}</h2>
+          <h2>{s.url ? <a href={url(s.url)}>{s.title}</a> : s.title}</h2>
           <p>{s.excerpt}</p>
           {!s.url && <span class="todo">[add link]</span>}
         </div>

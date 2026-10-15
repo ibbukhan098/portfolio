@@ -21,9 +21,15 @@ Built with [Astro](https://astro.build). Static output, no cookies, no tracking,
 - `src/pages/work/*.astro`: the case studies, laid out with `src/layouts/Article.astro`.
 - `<Todo>` and `class="todo"` mark placeholders (highlighted yellow). Search for them before launch.
 
-## Before launch
+## Deployment
+
+Every push to `main` deploys to GitHub Pages via `.github/workflows/deploy.yml`:
+https://ibbukhan098.github.io/portfolio/
+
+Internal links go through `url()` in `src/lib/url.ts`, which adds the `/portfolio` base. For a custom domain, set `site` in `astro.config.mjs` and remove `base`.
+
+## Still to do
 
 - Fill every `<Todo>` and every `TODO` comment, including source links in `sources.ts`.
-- Add `public/cv.pdf` and `public/portrait.jpg` (then swap the photo placeholder in `src/pages/index.astro`).
-- Set your real email in `src/data/site.ts`.
+- Add `public/portrait.jpg` and swap the photo placeholder in `src/pages/index.astro`.
 - Write the Impressum and Datenschutz pages.

@@ -8,7 +8,7 @@ export const site = {
   links: {
     linkedin: 'https://www.linkedin.com/in/ibrahimalik/',
     github: 'https://github.com/ibbukhan098',
-    cv: '/cv.pdf', // TODO: add public/cv.pdf
+    cv: '/cv.pdf',
   },
   availability: 'Full-time from November 2026 · Germany · on-site, hybrid or remote',
 };

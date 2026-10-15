@@ -3,6 +3,7 @@
 // sidebar ("fact box") for metadata and the sources the story cites.
 import Paper from './Paper.astro';
 import { getSource } from '../data/sources';
+import { url } from '../lib/url';
 
 interface Fact {
   label: string;
@@ -57,7 +58,7 @@ const cited = cites.map(getSource);
           <ol>
             {cited.map((s) => (
               <li>
-                <a href={`/sources#${s.id}`}>
+                <a href={url(`/sources#${s.id}`)}>
                   <span class="n">{s.n}</span>
                   <span>{s.title}</span>
                 </a>
@@ -69,7 +70,7 @@ const cited = cites.map(getSource);
     </div>
 
     {next && (
-      <a class="next double-rule" href={next.href}>
+      <a class="next double-rule" href={url(next.href)}>
         <span class="label">Next story ›</span>
         <span class="next-head">{next.headline}</span>
       </a>

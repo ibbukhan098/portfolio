@@ -1,6 +1,7 @@
 ---
 import { site, nav } from '../data/site';
 import { edition } from '../lib/edition';
+import { url, samePage } from '../lib/url';
 
 interface Props {
   compact?: boolean;
@@ -21,7 +22,7 @@ const path = Astro.url.pathname;
   )}
 
   <div class="title">
-    <a href="/" class="name" aria-label={`${site.paper}, front page`}>{site.paper}</a>
+    <a href={url('/')} class="name" aria-label={`${site.paper}, front page`}>{site.paper}</a>
     {!compact && <p class="motto">“{site.motto}”</p>}
   </div>
 
@@ -29,8 +30,8 @@ const path = Astro.url.pathname;
     {nav.map((item) => (
       <a
         class="label"
-        href={item.href}
-        aria-current={item.href === path ? 'page' : undefined}
+        href={url(item.href)}
+        aria-current={samePage(url(item.href), path) ? 'page' : undefined}
       >
         {item.label}
       </a>

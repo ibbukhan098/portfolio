@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import { url } from '../lib/url';
 ---
 
 <footer class="label">
@@ -7,9 +8,9 @@ import { site } from '../data/site';
   <span class="links">
     {site.links.github && <a href={site.links.github}>GitHub</a>}
     <a href={site.links.linkedin}>LinkedIn</a>
-    <a href="/sources">Sources</a>
-    <a href="/impressum">Impressum</a>
-    <a href="/datenschutz">Datenschutz</a>
+    <a href={url('/sources')}>Sources</a>
+    <a href={url('/impressum')}>Impressum</a>
+    <a href={url('/datenschutz')}>Datenschutz</a>
   </span>
 </footer>
 

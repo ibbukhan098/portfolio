@@ -1,6 +1,6 @@
 // The evidence registry. Every claim on the site cites one of these by id.
 // Order here sets the footnote number shown on the page.
-// Entries from the résumé should point to /cv.pdf once it's published.
+// Résumé entries link to the published CV.
 
 export interface Source {
   id: string;
@@ -12,7 +12,7 @@ export interface Source {
 }
 
 const LINKEDIN = 'https://www.linkedin.com/in/ibrahimalik/';
-const CV = undefined; // TODO: set to '/cv.pdf' once public/cv.pdf exists
+const CV = '/cv.pdf';
 
 export const sources: Source[] = [
   {
