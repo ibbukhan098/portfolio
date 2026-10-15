@@ -1,0 +1,367 @@
+---
+// Figure 1: draw a swarm on the hexagonal grid and test its symmetries by turning or flipping it.
+import { getLang } from '../../i18n';
+
+const lang = getLang(Astro.url.pathname);
+
+const copy = {
+  en: {
+    fig: 'Fig. 1 · Interactive',
+    aria: 'A swarm of amoebots on a hexagonal grid',
+    shapes: 'Shapes',
+    test: 'Test',
+    presets: {
+      snowflake: 'Snowflake',
+      triangle: 'Triangle',
+      propeller: 'Propeller',
+      zigzag: 'Zigzag',
+      arrow: 'Arrow',
+      blob: 'Blob',
+    },
+    random: 'Random symmetric',
+    turn: 'Turn {deg}°',
+    flip: 'Flip',
+    rot: { 1: 'No rotational symmetry', 2: '2-fold rotation (180°)', 3: '3-fold rotation (120°)', 6: '6-fold rotation (60°)' },
+    axes0: 'no mirror axis',
+    axes1: '1 mirror axis',
+    axesN: '{n} mirror axes',
+    particles: '{n} amoebots',
+    match: 'Match: the swarm lands on itself after turning {deg}°.',
+    noMatch: 'No match: {n} amoebots land on empty cells after turning {deg}°.',
+    flipMatch: 'Match: the swarm is its own mirror image.',
+    flipNoMatch: 'No match: {n} amoebots land on empty cells when flipped.',
+    disconnect: 'Amoebots must stay connected, so that one has to stay.',
+    adjacent: 'New amoebots have to touch the swarm.',
+    last: 'Keep at least one amoebot.',
+    caption:
+      'Click empty cells to add amoebots and occupied ones to remove them. Red dashed lines are mirror axes. Here the computer sees the whole shape at once; the amoebots never do.',
+  },
+  de: {
+    fig: 'Abb. 1 · Interaktiv',
+    aria: 'Ein Schwarm von Amoebots auf einem Sechseckgitter',
+    shapes: 'Formen',
+    test: 'Testen',
+    presets: {
+      snowflake: 'Schneeflocke',
+      triangle: 'Dreieck',
+      propeller: 'Propeller',
+      zigzag: 'Zickzack',
+      arrow: 'Pfeil',
+      blob: 'Klecks',
+    },
+    random: 'Zufällig symmetrisch',
+    turn: '{deg}° drehen',
+    flip: 'Spiegeln',
+    rot: { 1: 'Keine Drehsymmetrie', 2: 'Zweizählig (180°)', 3: 'Dreizählig (120°)', 6: 'Sechszählig (60°)' },
+    axes0: 'keine Spiegelachse',
+    axes1: '1 Spiegelachse',
+    axesN: '{n} Spiegelachsen',
+    particles: '{n} Amoebots',
+    match: 'Treffer: Nach einer Drehung um {deg}° deckt sich der Schwarm mit sich selbst.',
+    noMatch: 'Kein Treffer: Nach einer Drehung um {deg}° landen {n} Amoebots auf leeren Feldern.',
+    flipMatch: 'Treffer: Der Schwarm ist sein eigenes Spiegelbild.',
+    flipNoMatch: 'Kein Treffer: Gespiegelt landen {n} Amoebots auf leeren Feldern.',
+    disconnect: 'Amoebots müssen verbunden bleiben, dieser muss also bleiben.',
+    adjacent: 'Neue Amoebots müssen den Schwarm berühren.',
+    last: 'Mindestens ein Amoebot muss bleiben.',
+    caption:
+      'Leere Felder anklicken, um Amoebots hinzuzufügen, besetzte, um sie zu entfernen. Rot gestrichelt: Spiegelachsen. Der Computer sieht hier die ganze Form auf einmal, die Amoebots nie.',
+  },
+};
+
+const t = copy[lang];
+const presetKeys = Object.keys(t.presets) as (keyof typeof t.presets)[];
+---
+
+<figure class="fig swarm" data-fig="swarm" data-strings={JSON.stringify(t)}>
+  <div class="fig-head">
+    <span class="label">{t.fig}</span>
+    <span class="label fig-status" aria-live="polite"></span>
+  </div>
+  <svg role="img" aria-label={t.aria}></svg>
+  <p class="readout" aria-live="polite"></p>
+  <div class="controls">
+    <div class="group" role="group" aria-label={t.shapes}>
+      <span class="label">{t.shapes}</span>
+      {presetKeys.map((k) => <button type="button" class="btn" data-preset={k}>{t.presets[k]}</button>)}
+      <button type="button" class="btn" data-random>{t.random}</button>
+    </div>
+    <div class="group" role="group" aria-label={t.test}>
+      <span class="label">{t.test}</span>
+      {[1, 2, 3].map((k) => <button type="button" class="btn" data-turn={k}>{t.turn.replace('{deg}', String(60 * k))}</button>)}
+      <button type="button" class="btn" data-flip>{t.flip}</button>
+    </div>
+  </div>
+  <figcaption>{t.caption}</figcaption>
+</figure>
+
+<script>
+  import { DIRS, add, key, region, symmetries, centroid, isConnected, presets, randomSymmetric, toMath, type Cell } from '../../lib/amoebot/hex';
+  import { el, fmt, animate, sleep, strings, visibility, reducedMotion } from '../../lib/amoebot/dom';
+  import { shape } from '../../lib/amoebot/store';
+
+  type Copy = {
+    rot: Record<string, string>;
+    axes0: string; axes1: string; axesN: string; particles: string;
+    match: string; noMatch: string; flipMatch: string; flipNoMatch: string;
+    disconnect: string; adjacent: string; last: string;
+  };
+
+  const S = 34;
+  const R = 5;
+  const sc = ([x, y]: readonly [number, number]) => [x * S, -y * S] as const;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-fig="swarm"]')) {
+    const t = strings<Copy>(root);
+    const svg = root.querySelector('svg')!;
+    const status = root.querySelector<HTMLElement>('.fig-status')!;
+    const readout = root.querySelector<HTMLElement>('.readout')!;
+    const W = (2 * R + 1.4) * S;
+    const H = (2 * R * 0.866 + 1.4) * S;
+    svg.setAttribute('viewBox', `${-W / 2} ${-H / 2} ${W} ${H}`);
+
+    const axesG = el('g', { class: 'axes' }, svg);
+    const slotsG = el('g', { class: 'slots' }, svg);
+    const ghostG = el('g', { class: 'ghost' }, svg);
+    const swarmG = el('g', { class: 'swarm-g' }, svg);
+    const ripplesG = el('g', { class: 'ripples' }, svg);
+
+    let cells: Cell[] = presets.snowflake;
+    let busy = false;
+    let statusTimer = 0;
+    const view = visibility(root);
+
+    const say = (msg: string, sticky = false) => {
+      status.textContent = msg;
+      clearTimeout(statusTimer);
+      if (!sticky) statusTimer = window.setTimeout(() => (status.textContent = ''), 3200);
+    };
+
+    for (const cell of region(R)) {
+      const [x, y] = sc(toMath(cell));
+      const g = el('g', { class: 'slot', transform: `translate(${x} ${y})` }, slotsG);
+      el('circle', { r: 2.2, class: 'dot' }, g);
+      el('circle', { r: S * 0.48, class: 'hit' }, g);
+      g.addEventListener('click', () => toggle(cell));
+    }
+
+    function toggle(cell: Cell) {
+      if (busy) return;
+      const k = key(cell);
+      const has = cells.some((c) => key(c) === k);
+      if (has) {
+        if (cells.length === 1) return say(t.last);
+        const next = cells.filter((c) => key(c) !== k);
+        if (!isConnected(next)) return say(t.disconnect);
+        cells = next;
+      } else {
+        const touches = DIRS.some((d) => cells.some((c) => key(c) === key(add(cell, d))));
+        if (!touches) return say(t.adjacent);
+        cells = [...cells, cell];
+      }
+      render();
+    }
+
+    function render() {
+      swarmG.replaceChildren();
+      swarmG.removeAttribute('transform');
+      for (const c of cells) {
+        const [x, y] = sc(toMath(c));
+        el('circle', { cx: x, cy: y, r: S * 0.36, class: 'amoebot', 'data-key': key(c) }, swarmG);
+      }
+      const sym = symmetries(cells);
+      const [cx, cy] = sc(centroid(cells));
+      axesG.replaceChildren();
+      for (const a of sym.axes) {
+        const rad = (a * Math.PI) / 180;
+        const L = (R + 0.8) * S;
+        el('line', {
+          x1: cx - L * Math.cos(rad), y1: cy + L * Math.sin(rad),
+          x2: cx + L * Math.cos(rad), y2: cy - L * Math.sin(rad),
+          class: 'axis',
+        }, axesG);
+      }
+      const axes = sym.axes.length === 0 ? t.axes0 : sym.axes.length === 1 ? t.axes1 : fmt(t.axesN, { n: sym.axes.length });
+      readout.textContent = `${t.rot[sym.order]} · ${axes} · ${fmt(t.particles, { n: cells.length })}`;
+      shape.set(cells);
+    }
+
+    /** Particles that would land on an empty cell under the transform. */
+    function misses(map: (p: readonly [number, number]) => readonly [number, number]) {
+      const pts = cells.map(toMath);
+      return cells.filter((_, i) => {
+        const [x, y] = map(pts[i]);
+        return !pts.some(([px, py]) => Math.hypot(px - x, py - y) < 1e-6);
+      });
+    }
+
+    function showGhost() {
+      ghostG.replaceChildren();
+      for (const c of cells) {
+        const [x, y] = sc(toMath(c));
+        el('circle', { cx: x, cy: y, r: S * 0.36, class: 'ghost-dot' }, ghostG);
+      }
+    }
+
+    async function transform(kind: 'turn' | 'flip', k = 0) {
+      if (busy) return;
+      busy = true;
+      root.querySelectorAll<HTMLButtonElement>('[data-turn],[data-flip]').forEach((b) => (b.disabled = true));
+      const c = centroid(cells);
+      const [cx, cy] = sc(c);
+      const angle = (60 * k * Math.PI) / 180;
+      const map =
+        kind === 'turn'
+          ? ([x, y]: readonly [number, number]) =>
+              [c[0] + (x - c[0]) * Math.cos(angle) - (y - c[1]) * Math.sin(angle),
+               c[1] + (x - c[0]) * Math.sin(angle) + (y - c[1]) * Math.cos(angle)] as const
+          : ([x, y]: readonly [number, number]) => [2 * c[0] - x, y] as const;
+      const missed = new Set(misses(map).map(key));
+
+      showGhost();
+      const setT = (p: number) =>
+        swarmG.setAttribute(
+          'transform',
+          kind === 'turn'
+            ? `rotate(${-60 * k * p} ${cx} ${cy})`
+            : `translate(${cx} ${cy}) scale(${Math.cos(Math.PI * p)} 1) translate(${-cx} ${-cy})`,
+        );
+      await animate(kind === 'turn' ? 500 + 300 * k : 900, setT);
+
+      swarmG.querySelectorAll<SVGCircleElement>('.amoebot').forEach((n) => {
+        n.classList.add(missed.has(n.dataset.key!) ? 'miss' : 'hit');
+      });
+      if (missed.size === 0 && !reducedMotion()) {
+        // Every amoebot lands on a ghost: let the whole swarm ring once.
+        for (const cell of cells) {
+          const [x, y] = sc(toMath(cell));
+          const ring = el('circle', { cx: x, cy: y, r: S * 0.36, class: 'ripple' }, ripplesG);
+          ring.addEventListener('animationend', () => ring.remove());
+        }
+      }
+      const deg = 60 * k;
+      if (kind === 'turn') say(missed.size === 0 ? fmt(t.match, { deg }) : fmt(t.noMatch, { deg, n: missed.size }), true);
+      else say(missed.size === 0 ? t.flipMatch : fmt(t.flipNoMatch, { n: missed.size }), true);
+
+      await sleep(1600);
+      await animate(450, (p) => setT(1 - p));
+      ghostG.replaceChildren();
+      render();
+      busy = false;
+      root.querySelectorAll<HTMLButtonElement>('[data-turn],[data-flip]').forEach((b) => (b.disabled = false));
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((b) =>
+      b.addEventListener('click', () => {
+        if (busy) return;
+        cells = presets[b.dataset.preset!];
+        render();
+      }),
+    );
+    root.querySelector('[data-random]')!.addEventListener('click', () => {
+      if (busy) return;
+      cells = randomSymmetric();
+      render();
+    });
+    root.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) =>
+      b.addEventListener('click', () => transform('turn', Number(b.dataset.turn))),
+    );
+    root.querySelector('[data-flip]')!.addEventListener('click', () => transform('flip'));
+
+    // Ambient "beeps": now and then an amoebot pings its neighbours.
+    if (!reducedMotion()) {
+      setInterval(() => {
+        if (!view.visible || busy || document.hidden) return;
+        const c = cells[Math.floor(Math.random() * cells.length)];
+        const [x, y] = sc(toMath(c));
+        const ring = el('circle', { cx: x, cy: y, r: S * 0.36, class: 'ripple' }, ripplesG);
+        ring.addEventListener('animationend', () => ring.remove());
+      }, 700);
+    }
+
+    render();
+  }
+</script>
+
+<style>
+  .swarm :global(.slot) {
+    cursor: pointer;
+  }
+
+  .swarm :global(.slot .dot) {
+    fill: #c4c4c4;
+    transition: transform 0.15s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .swarm :global(.slot:hover .dot) {
+    fill: var(--ink);
+    transform: scale(2.2);
+  }
+
+  .swarm :global(.slot .hit) {
+    fill: transparent;
+  }
+
+  .swarm :global(.amoebot) {
+    fill: var(--ink);
+    pointer-events: none;
+    transition: fill 0.25s ease;
+  }
+
+  .swarm :global(.amoebot.miss) {
+    fill: var(--accent);
+  }
+
+  .swarm :global(.amoebot.hit) {
+    fill: #2b2b2b;
+  }
+
+  .swarm :global(.ghost-dot) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    stroke-dasharray: 3 3;
+    opacity: 0.45;
+  }
+
+  .swarm :global(.axis) {
+    stroke: var(--accent);
+    stroke-width: 1.4;
+    stroke-dasharray: 6 5;
+    animation: axis-in 0.5s ease both;
+  }
+
+  .swarm :global(.ripple) {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1;
+    pointer-events: none;
+    animation: ripple 1.1s ease-out forwards;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .swarm :global(.ghost),
+  .swarm :global(.ripples) {
+    pointer-events: none;
+  }
+
+  @keyframes ripple {
+    from {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    to {
+      transform: scale(2.6);
+      opacity: 0;
+    }
+  }
+
+  @keyframes axis-in {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

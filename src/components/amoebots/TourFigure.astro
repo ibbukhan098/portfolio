@@ -1,0 +1,367 @@
+---
+// Figure 2: turn the swarm from Figure 1 into two strings by touring it from two directions.
+import { getLang } from '../../i18n';
+
+const lang = getLang(Astro.url.pathname);
+
+const copy = {
+  en: {
+    fig: 'Fig. 2 · Uses your swarm from Fig. 1',
+    aria: 'Two tours of the swarm, one from each direction',
+    compare: 'Compare with',
+    turn: 'd turned {deg}°',
+    play: 'Play',
+    reset: 'Reset',
+    tapeA: 'String a · tour from d (east)',
+    tapeB: 'String b · tour from d′ = d turned {deg}°',
+    empty: 'press Play',
+    electing: 'Electing a root for each direction: the amoebot furthest along it.',
+    touring: 'Touring: each step writes 1 + its direction relative to d (3 bits); each return writes 0.',
+    equal: 'Identical strings ({n} bits): the swarm survives a {deg}° turn.',
+    differ: 'The strings first differ at bit {i}: the swarm does not survive a {deg}° turn.',
+    caption:
+      'Both tours use the same rules, just measured from a different direction. If turning the swarm by the angle between d and d′ leaves it unchanged, the two strings come out identical. The swarm’s symmetry question becomes: are two strings equal?',
+  },
+  de: {
+    fig: 'Abb. 2 · Nutzt Ihren Schwarm aus Abb. 1',
+    aria: 'Zwei Rundgänge durch den Schwarm, aus je einer Richtung',
+    compare: 'Vergleich mit',
+    turn: 'd um {deg}° gedreht',
+    play: 'Abspielen',
+    reset: 'Zurücksetzen',
+    tapeA: 'Folge a · Rundgang ab d (Osten)',
+    tapeB: 'Folge b · Rundgang ab d′ = d um {deg}° gedreht',
+    empty: 'Abspielen drücken',
+    electing: 'Wurzelwahl für jede Richtung: der Amoebot, der in dieser Richtung am weitesten liegt.',
+    touring: 'Rundgang: Jeder Schritt schreibt 1 + seine Richtung relativ zu d (3 Bits), jede Rückkehr eine 0.',
+    equal: 'Identische Folgen ({n} Bits): Der Schwarm übersteht eine Drehung um {deg}°.',
+    differ: 'Die Folgen unterscheiden sich ab Bit {i}: Der Schwarm übersteht keine Drehung um {deg}°.',
+    caption:
+      'Beide Rundgänge folgen denselben Regeln, nur aus einer anderen Richtung gemessen. Lässt eine Drehung um den Winkel zwischen d und d′ den Schwarm unverändert, entstehen identische Folgen. Aus der Symmetriefrage wird: Sind zwei Bitfolgen gleich?',
+  },
+};
+
+const t = copy[lang];
+---
+
+<figure class="fig tour" data-fig="tour" data-strings={JSON.stringify(t)}>
+  <div class="fig-head">
+    <span class="label">{t.fig}</span>
+    <span class="label fig-status" aria-live="polite"></span>
+  </div>
+  <svg role="img" aria-label={t.aria}></svg>
+  <div class="tapes">
+    <div class="tape-row">
+      <span class="label tape-label" data-label="a">{t.tapeA}</span>
+      <p class="tape" data-tape="a">{t.empty}</p>
+    </div>
+    <div class="tape-row b">
+      <span class="label tape-label" data-label="b"></span>
+      <p class="tape" data-tape="b">{t.empty}</p>
+    </div>
+  </div>
+  <p class="readout verdict" aria-live="polite"></p>
+  <div class="controls">
+    <div class="group" role="group" aria-label={t.compare}>
+      <span class="label">{t.compare}</span>
+      {[1, 2, 3].map((k) => (
+        <button type="button" class="btn" data-k={k} aria-pressed={k === 1 ? 'true' : 'false'}>
+          {t.turn.replace('{deg}', String(60 * k))}
+        </button>
+      ))}
+    </div>
+    <div class="group">
+      <button type="button" class="btn" data-play>{t.play}</button>
+      <button type="button" class="btn" data-reset>{t.reset}</button>
+    </div>
+  </div>
+  <figcaption>{t.caption}</figcaption>
+</figure>
+
+<script>
+  import { DIRS, toMath, centroid, canonicalTour, type Cell, type Tour } from '../../lib/amoebot/hex';
+  import { el, fmt, animate, sleep, strings, onFirstView } from '../../lib/amoebot/dom';
+  import { shape, strings as stringsStore } from '../../lib/amoebot/store';
+
+  type Copy = {
+    tapeB: string; empty: string; electing: string; touring: string; equal: string; differ: string;
+  };
+
+  const S = 34;
+  const R = 5;
+  const sc = ([x, y]: readonly [number, number]) => [x * S, -y * S] as const;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-fig="tour"]')) {
+    const t = strings<Copy>(root);
+    const svg = root.querySelector('svg')!;
+    const status = root.querySelector<HTMLElement>('.fig-status')!;
+    const verdict = root.querySelector<HTMLElement>('.verdict')!;
+    const tapeA = root.querySelector<HTMLElement>('[data-tape="a"]')!;
+    const tapeB = root.querySelector<HTMLElement>('[data-tape="b"]')!;
+    const labelB = root.querySelector<HTMLElement>('[data-label="b"]')!;
+    const play = root.querySelector<HTMLButtonElement>('[data-play]')!;
+    const W = (2 * R + 1.4) * S;
+    const H = (2 * R * 0.866 + 1.4) * S;
+    svg.setAttribute('viewBox', `${-W / 2} ${-H / 2} ${W} ${H}`);
+
+    const dotsG = el('g', {}, svg);
+    const pathsG = el('g', {}, svg);
+    const markG = el('g', {}, svg);
+
+    let cells: Cell[] = [];
+    let k = 1;
+    let tours: [Tour, Tour] | null = null;
+    let run = 0;
+    let played = false;
+
+    function compute() {
+      tours = [canonicalTour(cells, 0), canonicalTour(cells, k)];
+      stringsStore.set({ a: tours[0].bits, b: tours[1].bits, turn: k });
+    }
+
+    function reset() {
+      run++;
+      pathsG.replaceChildren();
+      markG.replaceChildren();
+      dotsG.replaceChildren();
+      for (const c of cells) {
+        const [x, y] = sc(toMath(c));
+        el('circle', { cx: x, cy: y, r: S * 0.3, class: 'node' }, dotsG);
+      }
+      tapeA.textContent = t.empty;
+      tapeB.textContent = t.empty;
+      tapeA.classList.add('empty');
+      tapeB.classList.add('empty');
+      labelB.textContent = fmt(t.tapeB, { deg: 60 * k });
+      verdict.textContent = '';
+      status.textContent = '';
+      play.disabled = false;
+      compute();
+      drawDirections();
+    }
+
+    function drawDirections() {
+      const c = centroid(cells);
+      const [cx, cy] = sc(c);
+      [0, k].forEach((d, i) => {
+        const [dx, dy] = toMath(DIRS[d]);
+        const L = (R - 0.4) * S;
+        const x2 = cx + dx * L;
+        const y2 = cy - dy * L;
+        el('line', { x1: cx, y1: cy, x2, y2, class: `dir ${i ? 'b' : 'a'}` }, markG);
+        el('text', { x: cx + dx * (L + 16), y: cy - dy * (L + 16) + 6, class: `dir-label ${i ? 'b' : 'a'}`, 'text-anchor': 'middle' }, markG).textContent = i ? 'd′' : 'd';
+      });
+    }
+
+    function writeTape(tape: HTMLElement, bits: string, mismatch = -1) {
+      tape.classList.remove('empty');
+      tape.replaceChildren();
+      for (let i = 0; i < bits.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = bits[i];
+        if (i === mismatch) span.className = 'diff';
+        tape.append(span);
+        if (i % 4 === 3) tape.append(document.createTextNode('​'));
+      }
+    }
+
+    async function playTours() {
+      if (!tours) return;
+      const id = ++run;
+      play.disabled = true;
+      pathsG.replaceChildren();
+      const [A, B] = tours;
+
+      status.textContent = t.electing;
+      const heads = [A, B].map((tour, i) => {
+        const [x, y] = sc(toMath(tour.root));
+        el('circle', { cx: x, cy: y, r: S * 0.5 + i * 5, class: `root ${i ? 'b' : 'a'}` }, pathsG);
+        return el('circle', { cx: x, cy: y, r: 6, class: `head ${i ? 'b' : 'a'}` }, pathsG);
+      });
+      await sleep(900);
+      if (id !== run) return;
+
+      status.textContent = t.touring;
+      let bitsA = '';
+      let bitsB = '';
+      const n = A.steps.length;
+      const per = Math.max(60, Math.min(160, 4200 / n));
+      for (let i = 0; i < n; i++) {
+        [A, B].forEach((tour, j) => {
+          const step = tour.steps[i];
+          const [x1, y1] = sc(toMath(step.from));
+          const [x2, y2] = sc(toMath(step.to));
+          const off = j ? -2.5 : 2.5;
+          if (step.kind === 'forward') {
+            const line = el('line', { x1: x1 + off, y1: y1 + off, x2: x1 + off, y2: y1 + off, class: `edge ${j ? 'b' : 'a'}` }, pathsG);
+            animate(per * 0.9, (p) => {
+              line.setAttribute('x2', String(x1 + (x2 - x1) * p + off));
+              line.setAttribute('y2', String(y1 + (y2 - y1) * p + off));
+            });
+          }
+          animate(per * 0.9, (p) => {
+            heads[j].setAttribute('cx', String(x1 + (x2 - x1) * p));
+            heads[j].setAttribute('cy', String(y1 + (y2 - y1) * p));
+          });
+        });
+        bitsA += A.steps[i].bits;
+        bitsB += B.steps[i].bits;
+        writeTape(tapeA, bitsA);
+        writeTape(tapeB, bitsB);
+        await sleep(per);
+        if (id !== run) return;
+      }
+
+      const mismatch = [...A.bits].findIndex((b, i) => b !== B.bits[i]);
+      writeTape(tapeA, A.bits, mismatch);
+      writeTape(tapeB, B.bits, mismatch);
+      status.textContent = '';
+      verdict.textContent =
+        mismatch < 0 && A.bits.length === B.bits.length
+          ? fmt(t.equal, { n: A.bits.length, deg: 60 * k })
+          : fmt(t.differ, { i: mismatch + 1, deg: 60 * k });
+      verdict.classList.toggle('bad', mismatch >= 0);
+      play.disabled = false;
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-k]').forEach((b) =>
+      b.addEventListener('click', () => {
+        k = Number(b.dataset.k);
+        root.querySelectorAll('[data-k]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        reset();
+        if (played) playTours();
+      }),
+    );
+    play.addEventListener('click', () => {
+      played = true;
+      playTours();
+    });
+    root.querySelector('[data-reset]')!.addEventListener('click', reset);
+
+    shape.subscribe((next) => {
+      if (!next) return;
+      cells = next;
+      reset();
+      if (played) playTours();
+    });
+
+    onFirstView(root, () => {
+      if (!played) {
+        played = true;
+        playTours();
+      }
+    });
+  }
+</script>
+
+<style>
+  .tour :global(.node) {
+    fill: #e2e2e2;
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+
+  .tour :global(.edge) {
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  .tour :global(.edge.a),
+  .tour :global(.dir.a) {
+    stroke: var(--ink);
+  }
+
+  .tour :global(.edge.b),
+  .tour :global(.dir.b) {
+    stroke: var(--accent);
+  }
+
+  .tour :global(.dir) {
+    stroke-width: 1.2;
+    stroke-dasharray: 2 4;
+  }
+
+  .tour :global(.dir-label) {
+    font: italic 700 18px var(--font-head);
+  }
+
+  .tour :global(.dir-label.a) {
+    fill: var(--ink);
+  }
+
+  .tour :global(.dir-label.b) {
+    fill: var(--accent);
+  }
+
+  .tour :global(.root) {
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .tour :global(.root.a) {
+    stroke: var(--ink);
+  }
+
+  .tour :global(.root.b) {
+    stroke: var(--accent);
+  }
+
+  .tour :global(.head.a) {
+    fill: var(--ink);
+  }
+
+  .tour :global(.head.b) {
+    fill: var(--accent);
+  }
+
+  .tapes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .tape-label {
+    display: block;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+  }
+
+  .tape-row.b .tape-label {
+    color: var(--accent);
+  }
+
+  .tape {
+    margin: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--rule);
+    font: 500 13px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    letter-spacing: 0.06em;
+    word-break: break-all;
+    min-height: 2.2em;
+  }
+
+  .tape.empty {
+    color: var(--ink-3);
+    font-style: italic;
+    font-family: var(--font-body);
+    letter-spacing: 0;
+  }
+
+  .tape-row.b .tape {
+    color: var(--accent);
+  }
+
+  .tape :global(.diff) {
+    background: var(--accent);
+    color: var(--paper);
+  }
+
+  .verdict {
+    color: var(--verified);
+  }
+
+  .verdict.bad {
+    color: var(--accent);
+  }
+</style>

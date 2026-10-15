@@ -202,8 +202,8 @@ export const sources: Source[] = [
     title: 'Symmetry Detection in Programmable Matter',
     date: { en: 'Aug 2024 – Aug 2025', de: 'Aug. 2024 – Aug. 2025' },
     excerpt: {
-      en: 'Distributed detection of rotational and reflective symmetry in the amoebot model, in O(log⁵ n) time.',
-      de: 'Verteilte Erkennung von Rotations- und Spiegelsymmetrie im Amoebot-Modell in O(log⁵ n) Zeit.',
+      en: 'Team report: distributed testing of rotational and reflective symmetry in the amoebot model via polynomial identity testing on a chain. Prime generation in O(log⁵ m) rounds, identity test in O(log⁴ m).',
+      de: 'Teambericht: verteilter Test auf Rotations- und Spiegelsymmetrie im Amoebot-Modell per Polynomidentitätstest auf einer Kette. Primzahlerzeugung in O(log⁵ m) Runden, Identitätstest in O(log⁴ m).',
     },
     // TODO: link to the 21-page report PDF
   },

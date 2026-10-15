@@ -1,0 +1,349 @@
+---
+// Figure 3: SendValueToBlocks. One block beeps its value; every other block copies it.
+import { getLang } from '../../i18n';
+
+const lang = getLang(Astro.url.pathname);
+
+const copy = {
+  en: {
+    fig: 'Fig. 3 · SendValueToBlocks, my subroutine',
+    aria: 'A chain of 24 amoebots in six blocks, passing a value between blocks with beeps',
+    block: 'Block {n}',
+    play: 'Play',
+    pause: 'Pause',
+    step: 'Step',
+    fresh: 'New r',
+    ready: 'Block 1 holds r = {r} in its first {ell} amoebots. The other blocks are empty.',
+    beep: 'Round {round} · all passive: the marker in block 1 beeps on the {circuit} circuit ({bit}). Every marker copies a {bit}.',
+    shift: 'Round {round} · singleton: circuits split, every marker moves one amoebot east.',
+    done: 'Done after {rounds} rounds: every block holds r = {r}. With 400 blocks it would still take {rounds}.',
+    primary: 'primary',
+    secondary: 'secondary',
+    caption:
+      'Block 1 (red) is the sender. Red rings mark block leaders; the white amoebots are each block’s parameter slice. In the all-passive configuration the chain forms two long circuits, so a single beep reaches every block at once. A beep on the primary circuit means 1, on the secondary 0.',
+  },
+  de: {
+    fig: 'Abb. 3 · SendValueToBlocks, meine Subroutine',
+    aria: 'Eine Kette aus 24 Amoebots in sechs Blöcken, die per Beep einen Wert zwischen Blöcken weitergibt',
+    block: 'Block {n}',
+    play: 'Abspielen',
+    pause: 'Pause',
+    step: 'Schritt',
+    fresh: 'Neues r',
+    ready: 'Block 1 hält r = {r} in seinen ersten {ell} Amoebots. Die anderen Blöcke sind leer.',
+    beep: 'Runde {round} · alle passiv: Der Marker in Block 1 piept auf dem {circuit} Schaltkreis ({bit}). Jeder Marker übernimmt eine {bit}.',
+    shift: 'Runde {round} · Singleton: Die Schaltkreise trennen sich, jeder Marker rückt einen Amoebot nach Osten.',
+    done: 'Fertig nach {rounds} Runden: Jeder Block hält r = {r}. Mit 400 Blöcken wären es ebenfalls {rounds}.',
+    primary: 'primären',
+    secondary: 'sekundären',
+    caption:
+      'Block 1 (rot) ist der Sender. Rote Ringe markieren Blockleiter, weiße Amoebots den Parameterbereich jedes Blocks. In der All-Passive-Konfiguration bildet die Kette zwei lange Schaltkreise, ein einziger Beep erreicht also alle Blöcke gleichzeitig. Ein Beep auf dem primären Schaltkreis bedeutet 1, auf dem sekundären 0.',
+  },
+};
+
+const t = copy[lang];
+---
+
+<figure class="fig beep" data-fig="beep" data-strings={JSON.stringify(t)}>
+  <div class="fig-head">
+    <span class="label">{t.fig}</span>
+    <span class="label fig-status round"></span>
+  </div>
+  <svg role="img" aria-label={t.aria}></svg>
+  <p class="readout narration" aria-live="polite"></p>
+  <div class="controls">
+    <div class="group">
+      <button type="button" class="btn" data-play>{t.play}</button>
+      <button type="button" class="btn" data-step>{t.step}</button>
+      <button type="button" class="btn" data-fresh>{t.fresh}</button>
+    </div>
+  </div>
+  <figcaption>{t.caption}</figcaption>
+</figure>
+
+<script>
+  import { el, fmt, animate, sleep, strings, onFirstView } from '../../lib/amoebot/dom';
+
+  type Copy = {
+    block: string; play: string; pause: string;
+    ready: string; beep: string; shift: string; done: string; primary: string; secondary: string;
+  };
+
+  // ℓ = 3 bits per parameter slice, blocks of k = 2^⌈log₂ ℓ⌉ = 4, as in the report.
+  const M = 24;
+  const K = 4;
+  const ELL = 3;
+  const BLOCKS = M / K;
+  const X0 = 28;
+  const DX = 28.6;
+  const Y = 96;
+  const YP = 72;
+  const YS = 120;
+  const x = (i: number) => X0 + i * DX;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-fig="beep"]')) {
+    const t = strings<Copy>(root);
+    const svg = root.querySelector('svg')!;
+    const narration = root.querySelector<HTMLElement>('.narration')!;
+    const roundLabel = root.querySelector<HTMLElement>('.round')!;
+    const playBtn = root.querySelector<HTMLButtonElement>('[data-play]')!;
+    svg.setAttribute('viewBox', `0 0 720 170`);
+
+    // Static scene: block frames, circuits, particles.
+    for (let b = 0; b < BLOCKS; b++) {
+      const left = x(b * K) - DX / 2;
+      if (b > 0) el('line', { x1: left, y1: 34, x2: left, y2: 150, class: 'sep' }, svg);
+      const label = fmt(t.block, { n: b + 1 });
+      el('text', { x: left + 6, y: 26, class: `block-label${b === 0 ? ' sender' : ''}` }, svg).textContent = label;
+    }
+    const segs: SVGLineElement[] = [];
+    for (const yy of [YP, YS]) {
+      for (let i = 0; i < M - 1; i++) {
+        segs.push(el('line', { x1: x(i), y1: yy, x2: x(i + 1), y2: yy, class: 'seg' }, svg));
+      }
+    }
+    el('text', { x: x(M - 1) + 18, y: YP + 4, class: 'enc' }, svg).textContent = '1';
+    el('text', { x: x(M - 1) + 18, y: YS + 4, class: 'enc' }, svg).textContent = '0';
+    const pulses = [YP, YS].map((yy) => el('line', { x1: x(0) - 8, y1: yy, x2: x(M - 1) + 8, y2: yy, class: 'pulse' }, svg));
+
+    const texts: SVGTextElement[] = [];
+    for (let i = 0; i < M; i++) {
+      const local = i % K;
+      el('line', { x1: x(i), y1: YP, x2: x(i), y2: YS, class: 'pin' }, svg);
+      el('circle', {
+        cx: x(i), cy: Y, r: 11,
+        class: ['p', local === 0 ? 'leader' : '', local < ELL ? 'slice' : ''].join(' '),
+      }, svg);
+      texts.push(el('text', { x: x(i), y: Y + 4, class: 'bit' }, svg));
+    }
+    const rings = Array.from({ length: BLOCKS }, (_, b) =>
+      el('circle', { cx: x(b * K), cy: Y, r: 16, class: `ring${b === 0 ? ' sender' : ''}` }, svg),
+    );
+
+    let r = '';
+    let j = 0;
+    let phase: 'beep' | 'shift' | 'done' = 'beep';
+    let playing = false;
+    let busy = false;
+
+    const rounds = 2 * ELL - 1;
+
+    function setCut(cut: boolean) {
+      segs.forEach((s) => s.classList.toggle('cut', cut));
+    }
+
+    function fresh() {
+      r = Array.from({ length: ELL }, (_, i) => (i === 0 ? '1' : Math.random() < 0.5 ? '1' : '0')).join('');
+      j = 0;
+      phase = 'beep';
+      setCut(false);
+      texts.forEach((tx, i) => {
+        tx.textContent = i < ELL ? r[i] : '';
+        tx.classList.remove('pop');
+      });
+      rings.forEach((ring, b) => ring.setAttribute('cx', String(x(b * K))));
+      narration.textContent = fmt(t.ready, { r, ell: ELL });
+      roundLabel.textContent = '';
+    }
+
+    async function step() {
+      if (busy || phase === 'done') return;
+      busy = true;
+      if (phase === 'beep') {
+        setCut(false);
+        const bit = r[j];
+        const pulse = pulses[bit === '1' ? 0 : 1];
+        pulses.forEach((p) => p.classList.remove('flash'));
+        void pulse.getBoundingClientRect();
+        pulse.classList.add('flash');
+        roundLabel.textContent = `${2 * j + 1} / ${rounds}`;
+        narration.textContent = fmt(t.beep, { round: 2 * j + 1, bit, circuit: bit === '1' ? t.primary : t.secondary });
+        await sleep(250);
+        for (let b = 1; b < BLOCKS; b++) {
+          const tx = texts[b * K + j];
+          tx.textContent = bit;
+          tx.classList.remove('pop');
+          void tx.getBoundingClientRect();
+          tx.classList.add('pop');
+        }
+        phase = j === ELL - 1 ? 'done' : 'shift';
+        if (phase === 'done') {
+          await sleep(500);
+          narration.textContent = fmt(t.done, { rounds, r });
+        }
+      } else {
+        setCut(true);
+        roundLabel.textContent = `${2 * j + 2} / ${rounds}`;
+        narration.textContent = fmt(t.shift, { round: 2 * j + 2 });
+        const from = j;
+        await animate(450, (p) => rings.forEach((ring, b) => ring.setAttribute('cx', String(x(b * K + from) + DX * p))));
+        j++;
+        phase = 'beep';
+      }
+      busy = false;
+    }
+
+    async function loop() {
+      while (playing && phase !== 'done') {
+        await step();
+        await sleep(1100);
+      }
+      playing = false;
+      playBtn.textContent = t.play;
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (phase === 'done') fresh();
+      playing = !playing;
+      playBtn.textContent = playing ? t.pause : t.play;
+      if (playing) loop();
+    });
+    root.querySelector('[data-step]')!.addEventListener('click', () => {
+      playing = false;
+      playBtn.textContent = t.play;
+      step();
+    });
+    root.querySelector('[data-fresh]')!.addEventListener('click', () => {
+      playing = false;
+      playBtn.textContent = t.play;
+      fresh();
+    });
+
+    fresh();
+    onFirstView(root, () => {
+      if (!playing && j === 0 && phase === 'beep') {
+        playing = true;
+        playBtn.textContent = t.pause;
+        loop();
+      }
+    });
+  }
+</script>
+
+<style>
+  .beep :global(.block-label) {
+    font: 800 10px var(--font-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: var(--ink-3);
+  }
+
+  .beep :global(.block-label.sender) {
+    fill: var(--accent);
+  }
+
+  .beep :global(.sep) {
+    stroke: var(--rule);
+    stroke-dasharray: 3 4;
+  }
+
+  .beep :global(.seg) {
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    transition: opacity 0.3s ease;
+  }
+
+  .beep :global(.seg.cut) {
+    opacity: 0.15;
+  }
+
+  .beep :global(.pin) {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  .beep :global(.enc) {
+    font: 700 12px var(--font-label);
+    fill: var(--ink-3);
+  }
+
+  .beep :global(.pulse) {
+    stroke: var(--accent);
+    stroke-width: 5;
+    stroke-linecap: round;
+    opacity: 0;
+  }
+
+  .beep :global(.pulse.flash) {
+    animation: flash 0.9s ease-out;
+  }
+
+  .beep :global(.p) {
+    fill: #dcdcdc;
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+
+  .beep :global(.p.slice) {
+    fill: var(--paper);
+  }
+
+  .beep :global(.p.leader) {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+
+  .beep :global(.bit) {
+    font: 700 12px var(--font-label);
+    text-anchor: middle;
+    fill: var(--ink);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .beep :global(.bit.pop) {
+    animation: pop 0.45s ease-out;
+    fill: var(--accent);
+  }
+
+  .beep :global(.ring) {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-dasharray: 4 3;
+  }
+
+  .beep :global(.ring.sender) {
+    stroke: var(--accent);
+    stroke-dasharray: none;
+  }
+
+  .narration {
+    min-height: 2.8em;
+  }
+
+  @keyframes flash {
+    0% {
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      transform: scale(0.2);
+    }
+    60% {
+      transform: scale(1.5);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .beep :global(.pulse.flash),
+    .beep :global(.bit.pop) {
+      animation: none;
+    }
+
+    .beep :global(.pulse.flash) {
+      opacity: 0.6;
+    }
+  }
+</style>

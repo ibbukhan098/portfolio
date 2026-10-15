@@ -1,87 +1,123 @@
 ---
 import Article from '../../layouts/Article.astro';
 import Cite from '../../components/Cite.astro';
-import Todo from '../../components/Todo.astro';
+import SwarmFigure from '../../components/amoebots/SwarmFigure.astro';
+import TourFigure from '../../components/amoebots/TourFigure.astro';
+import BeepFigure from '../../components/amoebots/BeepFigure.astro';
+import FingerprintFigure from '../../components/amoebots/FingerprintFigure.astro';
 ---
 
 <Article
   title="Symmetry in programmable matter"
   kicker="Science · Distributed algorithms"
-  status="Interactive coming"
+  status="Interactive"
   headline="Finding symmetry when every particle is blind"
-  deck="Tiny robots on a hexagonal grid, each with constant memory and only its neighbours in view, work out together whether their shape is symmetric, in O(log⁵ n) time."
+  deck="Tiny robots on a hexagonal grid, each with a few bits of memory and only its neighbours in view, work out together whether their shape is symmetric. Play with every step below."
   facts={[
-    { label: 'Where', value: 'Paderborn University, team project' },
+    { label: 'Where', value: 'Paderborn University, project group “Programmable Matter”' },
     { label: 'When', value: 'Aug 2024 – Aug 2025' },
-    { label: 'Model', value: 'Geometric amoebot model, reconfigurable circuits' },
-    { label: 'Simulator', value: 'AmoebotSim (Unity)' },
-    { label: 'Result', value: 'O(log⁵ n) symmetry detection' },
+    { label: 'Team', value: 'Ahmet Can Kaytaz, Ibrahim Ali Khan, Pooja Garg, Rasika Jayavelu, Thevin Arokiaraj Lawrence' },
+    { label: 'Model', value: 'Geometric amoebot model with reconfigurable circuits' },
+    { label: 'Simulator', value: 'AmoebotSim (Unity, C#)' },
+    { label: 'Cost', value: 'Prime generation O(log⁵ m) rounds; identity test O(log⁴ m), for a chain of m amoebots' },
   ]}
   cites={['amoebots']}
 >
-  <figure class="figure">
-    <svg viewBox="0 0 208 140" role="img" aria-label="A hexagon of 19 particles with a vertical axis of symmetry">
-      <line x1="104" y1="2" x2="104" y2="136" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="3 3"></line>
-      <g fill="#111">
-        <circle cx="76" cy="20" r="9"></circle><circle cx="104" cy="20" r="9"></circle><circle cx="132" cy="20" r="9"></circle>
-        <circle cx="62" cy="44" r="9"></circle><circle cx="90" cy="44" r="9"></circle><circle cx="118" cy="44" r="9"></circle><circle cx="146" cy="44" r="9"></circle>
-        <circle cx="48" cy="68" r="9"></circle><circle cx="76" cy="68" r="9"></circle><circle cx="132" cy="68" r="9"></circle><circle cx="160" cy="68" r="9"></circle>
-        <circle cx="62" cy="93" r="9"></circle><circle cx="90" cy="93" r="9"></circle><circle cx="118" cy="93" r="9"></circle><circle cx="146" cy="93" r="9"></circle>
-        <circle cx="76" cy="117" r="9"></circle><circle cx="104" cy="117" r="9"></circle><circle cx="132" cy="117" r="9"></circle>
-      </g>
-      <circle cx="104" cy="68" r="9" fill="#c8102e"></circle>
-    </svg>
-    <figcaption>Fig. 1: 19 particles, each seeing only its neighbours. The interactive version will let you reshape the cluster and watch the detection run.</figcaption>
-  </figure>
-
-  <h2>The model</h2>
   <p>
-    In the amoebot model, particles sit on a hexagonal grid, have constant memory, and communicate only by
-    “beeps” over reconfigurable circuits. Even simple global questions are hard when no particle can see the
-    whole shape.<Cite id="amoebots" />
+    Imagine a swarm of robots so small that each one can store only a handful of bits. They sit on a
+    hexagonal grid, see only their immediate neighbours, and talk by beeping. Can they work out, together,
+    whether the shape they form is symmetric? Our project group built the answer as a working system in
+    the AmoebotSim simulator.<Cite id="amoebots" />
   </p>
 
-  <h2>The approach</h2>
+  <h2>The question</h2>
   <p>
-    We reduced symmetry detection to polynomial identity testing over finite fields: encode the shape as
-    binary strings, then check equality probabilistically with modular arithmetic, in parallel across the
-    particle chain.
+    Start with the shape. Draw your own swarm below, then turn or flip it. A symmetric swarm lands exactly
+    on its own ghost.
   </p>
+
+  <SwarmFigure />
+
+  <p>
+    That was easy because the computer saw the whole picture. No amoebot ever does. Each has constant
+    memory, a shared sense of direction, and a few “pins” it can wire to its neighbours. Wired together,
+    those pins form circuits: a beep sent into a circuit reaches every amoebot on it in the same round.
+  </p>
+
+  <h2>From a shape to a string</h2>
+  <p>
+    The trick is to turn geometry into bits. Pick a direction d, elect the amoebot furthest along it as the
+    root, and tour the swarm with a fixed rule: always try neighbours clockwise, starting from d. Write every
+    step down. Do the same from a turned direction d′. If the swarm survives that turn, the two write-ups are
+    identical.
+  </p>
+
+  <TourFigure />
+
+  <p>
+    Now the hard question has become a cleaner one: are two bit strings equal? The strings are laid out on a
+    straight chain, one bit of each per amoebot.
+  </p>
+
+  <h2>Beeping a number down the chain</h2>
+  <p>
+    Rather than compare the strings directly, the algorithm compares short fingerprints of them, a classic
+    randomised trick. For that, the chain splits into blocks of k = O(log m) amoebots. The first ℓ amoebots
+    of every block, its parameter slice, hold a prime p and a random number r, one bit each. Getting r from one block into every other block is what my
+    SendValueToBlocks subroutine does.
+  </p>
+
+  <BeepFigure />
+
+  <p>
+    Two configurations alternate. All passive: every amoebot connects its neighbours’ pins straight
+    through, so the chain becomes two long circuits and one beep reaches all blocks. Singleton: every pin
+    is cut loose, so each marker can nudge its neighbour and the reading position moves one step. The number
+    of rounds depends on ℓ, not on how many blocks there are.
+  </p>
+
+  <h2>Fingerprints instead of comparisons</h2>
+  <p>
+    Read a bit string x as a polynomial: f<sub>x</sub>(r) = Σ x<sub>e</sub> · r<sup>e</sup> mod p. Equal
+    strings always give equal fingerprints. Different strings agree only if r happens to be a root of
+    their difference, which is rare, and repeating with fresh values of r makes it rarer still. Each block
+    evaluates its own terms in parallel with modular exponentiation, then the blocks add their sums into the
+    head of the chain. That computation, ComputeF, was the other part I built.
+  </p>
+
+  <FingerprintFigure />
 
   <h2>My part</h2>
   <ul>
-    <li><strong>Distributed random number generation:</strong> a multi-round pipeline that generates and validates values 0 ≤ r &lt; p across all blocks.</li>
-    <li><strong>SendValueToBlocks:</strong> a reusable two-round protocol that broadcasts a value from one block to all others over reconfigurable circuits.</li>
-    <li><strong>ComputeF:</strong> polynomial evaluation f(r) = Σ(aₑrᵉ mod p) via right-to-left modular exponentiation, PASC-based tree summation, and a SubDivision2 subroutine for when the dividend is smaller than the divisor.</li>
+    <li>
+      <strong>Random r:</strong> every amoebot in the parameter slice draws one bit; a distributed
+      comparison rejects the candidate unless r &lt; p, and the loop repeats until it passes.
+    </li>
+    <li>
+      <strong>SendValueToBlocks:</strong> the two-round broadcast in Fig. 3, reusable for any value one
+      block needs to share.
+    </li>
+    <li>
+      <strong>ComputeF:</strong> per-block terms a<sub>e</sub>·r<sup>e</sup> mod p by right-to-left
+      modular exponentiation, the cross-block sum f(r), and SubDivision2, which handles the case where the
+      dividend is smaller than the divisor.
+    </li>
+    <li>
+      <strong>With teammates:</strong> the canonical trees and symmetric shape generators behind Figs. 1
+      and 2 (with Ahmet Can Kaytaz and Thevin Arokiaraj Lawrence), and a stand-in prime for testing (with
+      Ahmet Can Kaytaz).
+    </li>
   </ul>
+  <p>
+    Pooja Garg built the block-leader election that divides the chain; Thevin Arokiaraj Lawrence and Rasika
+    Jayavelu built distributed prime generation; Ahmet Can Kaytaz tied everything into the end-to-end run and
+    led the write-up.
+  </p>
 
   <h2>What I learned</h2>
   <p>
-    Thinking distributedly was hard at first. Every particle is blind to the global state, so you design
-    local rules and trust them to produce the global answer. Once that clicked, the constraint became the
+    Thinking distributedly was hard at first. Every amoebot is blind to the global state, so you design local
+    rules and trust them to produce the global answer. Once that clicked, the constraint became the
     interesting part.
   </p>
-  <p><Todo>link the 21-page report, credit teammates and supervisors</Todo></p>
 </Article>
-
-<style>
-  .figure {
-    margin: 0 0 28px;
-    padding: 20px;
-    border: 1px solid var(--ink);
-  }
-
-  .figure svg {
-    display: block;
-    width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
-  }
-
-  .figure figcaption {
-    margin-top: 12px;
-    font-style: italic;
-    font-size: 15px;
-    color: var(--ink-3);
-  }
-</style>

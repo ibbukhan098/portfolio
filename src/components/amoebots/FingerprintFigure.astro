@@ -1,0 +1,446 @@
+---
+// Figure 4: compare the two strings from Figure 2 by polynomial fingerprints, block by block.
+import { getLang } from '../../i18n';
+
+const lang = getLang(Astro.url.pathname);
+
+const copy = {
+  en: {
+    fig: 'Fig. 4 · ComputeF, my part: per-block terms and their sum',
+    aria: 'Blocks computing their share of two fingerprints, then adding them up in a tree',
+    run: 'Run the test',
+    flip: 'Flip one bit of b',
+    restore: 'Use the strings from Fig. 2',
+    params: 'm = {m} bits · ℓ = {ell} · blocks of k = {k} · {trials} trials',
+    same: 'Strings a and b are identical.',
+    diff: 'Strings a and b differ in {n} place(s).',
+    flipped: 'Flipped bit {e} of b.',
+    searching: 'Looking for an {ell}-bit prime p:',
+    composite: '{n} = {d} × {q}',
+    prime: '{n} is prime',
+    trial: 'Trial {t} of {T}: r = {r}, a fresh random number below p = {p}.',
+    blocks: 'Each block computes its terms aₑ·rᵉ mod p in parallel…',
+    tree: '…then neighbouring blocks add their sums, halving the count each round.',
+    pass: 'Both fingerprints come out as {v}. Consistent with equal strings.',
+    fail: 'Fingerprint of a: {a}. Fingerprint of b: {b}. The strings are not equal.',
+    equal: 'Verdict: equal. All {T} trials agreed.',
+    notEqual: 'Verdict: not equal, caught in trial {t}.',
+    bound:
+      'If a ≠ b, a trial is fooled only when r is a root of the difference of the two polynomials: at most (m−1)/p = {pct}. All {T} independent trials: at most {all}.',
+    caption:
+      'The real chain does this with one bit per amoebot and no amoebot ever holds a whole number. Here the computer does the arithmetic so you can watch the structure: every block works at the same time, and the sums meet at the head of the chain in about log₂(blocks) rounds.',
+  },
+  de: {
+    fig: 'Abb. 4 · ComputeF, mein Teil: Blockterme und ihre Summe',
+    aria: 'Blöcke berechnen ihren Anteil an zwei Fingerabdrücken und addieren ihn baumartig',
+    run: 'Test starten',
+    flip: 'Ein Bit von b kippen',
+    restore: 'Folgen aus Abb. 2 nutzen',
+    params: 'm = {m} Bits · ℓ = {ell} · Blöcke der Größe k = {k} · {trials} Durchläufe',
+    same: 'Die Folgen a und b sind identisch.',
+    diff: 'Die Folgen a und b unterscheiden sich an {n} Stelle(n).',
+    flipped: 'Bit {e} von b gekippt.',
+    searching: 'Suche nach einer {ell}-Bit-Primzahl p:',
+    composite: '{n} = {d} × {q}',
+    prime: '{n} ist prim',
+    trial: 'Durchlauf {t} von {T}: r = {r}, eine frische Zufallszahl unter p = {p}.',
+    blocks: 'Jeder Block berechnet parallel seine Terme aₑ·rᵉ mod p …',
+    tree: '… dann addieren benachbarte Blöcke ihre Summen und halbieren so jede Runde die Anzahl.',
+    pass: 'Beide Fingerabdrücke ergeben {v}. Passt zu gleichen Folgen.',
+    fail: 'Fingerabdruck von a: {a}. Fingerabdruck von b: {b}. Die Folgen sind nicht gleich.',
+    equal: 'Ergebnis: gleich. Alle {T} Durchläufe stimmen überein.',
+    notEqual: 'Ergebnis: ungleich, erkannt in Durchlauf {t}.',
+    bound:
+      'Ist a ≠ b, täuscht ein Durchlauf nur, wenn r eine Nullstelle der Differenz beider Polynome ist: höchstens (m−1)/p = {pct}. Alle {T} unabhängigen Durchläufe: höchstens {all}.',
+    caption:
+      'Die echte Kette rechnet mit einem Bit pro Amoebot, kein Amoebot hält je eine ganze Zahl. Hier rechnet der Computer, damit die Struktur sichtbar wird: Alle Blöcke arbeiten gleichzeitig, und die Summen treffen sich nach etwa log₂(Blöcke) Runden am Kopf der Kette.',
+  },
+};
+
+const t = copy[lang];
+---
+
+<figure class="fig fingerprint" data-fig="fingerprint" data-strings={JSON.stringify(t)} data-lang={lang}>
+  <div class="fig-head">
+    <span class="label">{t.fig}</span>
+    <span class="label fig-status params"></span>
+  </div>
+  <p class="readout compare"></p>
+  <p class="primes" aria-live="polite"></p>
+  <svg role="img" aria-label={t.aria}></svg>
+  <ol class="trials" aria-hidden="true"></ol>
+  <p class="readout narration" aria-live="polite"></p>
+  <p class="bound"></p>
+  <div class="controls">
+    <div class="group">
+      <button type="button" class="btn" data-run>{t.run}</button>
+      <button type="button" class="btn" data-flip>{t.flip}</button>
+      <button type="button" class="btn" data-restore>{t.restore}</button>
+    </div>
+  </div>
+  <figcaption>{t.caption}</figcaption>
+</figure>
+
+<script>
+  import { el, fmt, animate, sleep, strings, onFirstView } from '../../lib/amoebot/dom';
+  import { parameters, primeSearch, blockTerms, treeSum } from '../../lib/amoebot/pit';
+  import { strings as stringsStore } from '../../lib/amoebot/store';
+
+  type Copy = Record<string, string>;
+
+  const FALLBACK = '1001100110001010010101100111001000';
+  const W = 720;
+  const GAP = 6;
+  const BAR_TOP = 14;
+  const BAR_H = 64;
+  const ROW = 50;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-fig="fingerprint"]')) {
+    const t = strings<Copy>(root);
+    const locale = root.dataset.lang === 'de' ? 'de-DE' : 'en-GB';
+    const svg = root.querySelector('svg')!;
+    const paramsEl = root.querySelector<HTMLElement>('.params')!;
+    const compareEl = root.querySelector<HTMLElement>('.compare')!;
+    const primesEl = root.querySelector<HTMLElement>('.primes')!;
+    const trialsEl = root.querySelector<HTMLElement>('.trials')!;
+    const narration = root.querySelector<HTMLElement>('.narration')!;
+    const boundEl = root.querySelector<HTMLElement>('.bound')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run]')!;
+
+    let a = FALLBACK;
+    let b = FALLBACK;
+    let source = { a, b };
+    let run = 0;
+    let ran = false;
+
+    const pct = (x: number) =>
+      x >= 0.001
+        ? new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 1 }).format(x)
+        : new Intl.NumberFormat(locale, { maximumSignificantDigits: 2 }).format(x * 100) + ' %';
+
+    function describe() {
+      const m = a.length;
+      const P = parameters(m);
+      paramsEl.textContent = fmt(t.params, { m, ...P });
+      const d = [...a].filter((c, i) => c !== b[i]).length;
+      compareEl.textContent = d === 0 ? t.same : fmt(t.diff, { n: d });
+      compareEl.classList.toggle('bad', d > 0);
+      return P;
+    }
+
+    function reset() {
+      run++;
+      svg.replaceChildren();
+      primesEl.replaceChildren();
+      trialsEl.replaceChildren();
+      narration.textContent = '';
+      boundEl.textContent = '';
+      runBtn.disabled = false;
+      describe();
+    }
+
+    async function test() {
+      const id = ++run;
+      runBtn.disabled = true;
+      svg.replaceChildren();
+      trialsEl.replaceChildren();
+      boundEl.textContent = '';
+      const m = a.length;
+      const { ell, k, trials } = describe();
+
+      // 1. Prime search.
+      primesEl.replaceChildren();
+      const head = document.createElement('span');
+      head.className = 'label';
+      head.textContent = fmt(t.searching, { ell });
+      primesEl.append(head);
+      const { candidates, p } = primeSearch(ell);
+      for (const c of candidates) {
+        const chip = document.createElement('span');
+        const isPrime = c.divisor === c.n;
+        chip.className = `chip ${isPrime ? 'ok' : 'no'}`;
+        chip.textContent = isPrime ? fmt(t.prime, { n: c.n }) : fmt(t.composite, { n: c.n, d: c.divisor, q: c.n / c.divisor });
+        primesEl.append(chip);
+        await sleep(350);
+        if (id !== run) return;
+      }
+
+      const per = (m - 1) / p;
+      boundEl.textContent = fmt(t.bound, { pct: pct(per), T: trials, all: pct(per ** trials) });
+
+      // Trial markers.
+      const marks = Array.from({ length: trials }, () => {
+        const li = document.createElement('li');
+        trialsEl.append(li);
+        return li;
+      });
+
+      // Layout.
+      const n = Math.ceil(m / k);
+      const bw = Math.min(54, (W - 20 - (n - 1) * GAP) / n);
+      const x0 = (W - (n * bw + (n - 1) * GAP)) / 2;
+      const levelsCount = Math.ceil(Math.log2(n)) + 1;
+      const height = BAR_TOP + BAR_H + 30 + (levelsCount - 1) * ROW + 20;
+      svg.setAttribute('viewBox', `0 0 ${W} ${height}`);
+
+      let caughtAt = 0;
+      for (let trial = 1; trial <= trials; trial++) {
+        const r = Math.floor(Math.random() * p);
+        narration.textContent = fmt(t.trial, { t: trial, T: trials, r, p });
+        svg.replaceChildren();
+
+        const ta = blockTerms(a, r, p, k);
+        const tb = blockTerms(b, r, p, k);
+        const la = treeSum(ta, p);
+        const lb = treeSum(tb, p);
+
+        // Blocks with two bars each.
+        const centers: number[] = [];
+        const bars: [SVGRectElement, SVGRectElement, number, number][] = [];
+        for (let i = 0; i < n; i++) {
+          const bx = x0 + i * (bw + GAP);
+          centers.push(bx + bw / 2);
+          el('rect', { x: bx, y: BAR_TOP - 6, width: bw, height: BAR_H + 12, class: 'block' }, svg);
+          const inner = (bw - 12) / 2;
+          const ra = el('rect', { x: bx + 4, y: BAR_TOP + BAR_H, width: inner, height: 0, class: 'bar a' }, svg);
+          const rb = el('rect', { x: bx + 8 + inner, y: BAR_TOP + BAR_H, width: inner, height: 0, class: 'bar b' }, svg);
+          bars.push([ra, rb, ta[i] / p, tb[i] / p]);
+          el('text', { x: bx + bw / 2, y: BAR_TOP + BAR_H + 22, class: 'blabel' }, svg).textContent = `C${i + 1}`;
+        }
+        narration.textContent = t.blocks;
+        await sleep(300);
+        if (id !== run) return;
+        await animate(700, (q) =>
+          bars.forEach(([ra, rb, fa, fb]) => {
+            const ha = Math.max(1, BAR_H * fa * q);
+            const hb = Math.max(1, BAR_H * fb * q);
+            ra.setAttribute('y', String(BAR_TOP + BAR_H - ha));
+            ra.setAttribute('height', String(ha));
+            rb.setAttribute('y', String(BAR_TOP + BAR_H - hb));
+            rb.setAttribute('height', String(hb));
+          }),
+        );
+        await sleep(700);
+        if (id !== run) return;
+
+        // Tree summation.
+        narration.textContent = t.tree;
+        let prev = centers;
+        let prevY = BAR_TOP + BAR_H + 28;
+        for (let L = 1; L < la.length; L++) {
+          const y = BAR_TOP + BAR_H + 30 + (L - 1) * ROW + 26;
+          const xs: number[] = [];
+          const g = el('g', { class: 'level' }, svg);
+          for (let j = 0; j < la[L].length; j++) {
+            const kids = prev.slice(2 * j, 2 * j + 2);
+            const cx = kids.reduce((s, v) => s + v, 0) / kids.length;
+            xs.push(cx);
+            for (const kx of kids) el('line', { x1: kx, y1: prevY, x2: cx, y2: y - 15, class: 'wire' }, g);
+            const isHead = L === la.length - 1;
+            el('rect', { x: cx - 24, y: y - 15, width: 48, height: 30, class: `node${isHead ? ' head' : ''}` }, g);
+            el('text', { x: cx, y: y - 2, class: 'va' }, g).textContent = String(la[L][j]);
+            el('text', { x: cx, y: y + 11, class: 'vb' }, g).textContent = String(lb[L][j]);
+          }
+          prev = xs;
+          prevY = y + 15;
+          await sleep(550);
+          if (id !== run) return;
+        }
+
+        const fa = la[la.length - 1][0];
+        const fb = lb[lb.length - 1][0];
+        const passed = fa === fb;
+        marks[trial - 1].className = passed ? 'pass' : 'fail';
+        marks[trial - 1].textContent = passed ? '✓' : '✗';
+        narration.textContent = passed ? fmt(t.pass, { v: fa }) : fmt(t.fail, { a: fa, b: fb });
+        await sleep(1200);
+        if (id !== run) return;
+        if (!passed) {
+          caughtAt = trial;
+          break;
+        }
+      }
+
+      narration.textContent = caughtAt ? fmt(t.notEqual, { t: caughtAt }) : fmt(t.equal, { T: trials });
+      narration.classList.toggle('bad', caughtAt > 0);
+      runBtn.disabled = false;
+    }
+
+    runBtn.addEventListener('click', () => {
+      ran = true;
+      test();
+    });
+    root.querySelector('[data-flip]')!.addEventListener('click', () => {
+      const e = Math.floor(Math.random() * b.length);
+      b = b.slice(0, e) + (b[e] === '1' ? '0' : '1') + b.slice(e + 1);
+      reset();
+      narration.textContent = fmt(t.flipped, { e: e + 1 });
+    });
+    root.querySelector('[data-restore]')!.addEventListener('click', () => {
+      a = source.a;
+      b = source.b;
+      reset();
+    });
+
+    stringsStore.subscribe((next) => {
+      if (!next) return;
+      // A one-amoebot swarm has an empty tour; give the test something to chew on.
+      source = next.a.length ? { a: next.a, b: next.b } : { a: '1', b: '1' };
+      a = source.a;
+      b = source.b;
+      reset();
+    });
+
+    onFirstView(root, () => {
+      if (!ran) {
+        ran = true;
+        test();
+      }
+    });
+  }
+</script>
+
+<style>
+  .compare {
+    color: var(--verified);
+  }
+
+  .compare.bad,
+  .narration.bad {
+    color: var(--accent);
+  }
+
+  .primes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0;
+    min-height: 1.6em;
+    font: 600 13px/1.3 var(--font-label);
+  }
+
+  .primes :global(.label) {
+    color: var(--ink-3);
+    margin-right: 4px;
+  }
+
+  .primes :global(.chip) {
+    padding: 3px 7px;
+    border: 1px solid var(--rule);
+    animation: chip-in 0.25s ease-out;
+  }
+
+  .primes :global(.chip.no) {
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+
+  .primes :global(.chip.ok) {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .fingerprint :global(.block) {
+    fill: var(--paper);
+    stroke: var(--rule);
+  }
+
+  .fingerprint :global(.bar.a) {
+    fill: var(--ink);
+  }
+
+  .fingerprint :global(.bar.b) {
+    fill: var(--accent);
+  }
+
+  .fingerprint :global(.blabel) {
+    font: 700 10px var(--font-label);
+    fill: var(--ink-3);
+    text-anchor: middle;
+  }
+
+  .fingerprint :global(.level) {
+    animation: chip-in 0.35s ease-out;
+  }
+
+  .fingerprint :global(.wire) {
+    stroke: var(--ink-3);
+    stroke-width: 1;
+  }
+
+  .fingerprint :global(.node) {
+    fill: var(--paper);
+    stroke: var(--ink);
+  }
+
+  .fingerprint :global(.node.head) {
+    stroke-width: 2.5;
+  }
+
+  .fingerprint :global(.va),
+  .fingerprint :global(.vb) {
+    font: 700 11px var(--font-label);
+    text-anchor: middle;
+  }
+
+  .fingerprint :global(.va) {
+    fill: var(--ink);
+  }
+
+  .fingerprint :global(.vb) {
+    fill: var(--accent);
+  }
+
+  .trials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+  }
+
+  .trials :global(li) {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rule);
+    font: 700 13px var(--font-label);
+  }
+
+  .trials :global(li.pass) {
+    border-color: var(--verified);
+    color: var(--verified);
+  }
+
+  .trials :global(li.fail) {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--paper);
+  }
+
+  .bound {
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  @keyframes chip-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .primes :global(.chip),
+    .fingerprint :global(.level) {
+      animation: none;
+    }
+  }
+</style>

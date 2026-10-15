@@ -105,3 +105,87 @@ img {
   font-family: var(--font-label);
   font-size: 0.85em;
 }
+
+/* Interactive figures (amoebot story). */
+.fig {
+  margin: 32px 0;
+  padding-top: 10px;
+  border-top: 4px solid var(--ink);
+}
+
+.fig-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 10px;
+}
+
+.fig-status {
+  color: var(--accent);
+  min-height: 1.3em;
+}
+
+.fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.fig .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 12px;
+}
+
+.fig .group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.fig .group > .label {
+  color: var(--ink-3);
+  margin-right: 4px;
+}
+
+.fig .btn {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: 800 11px/1 var(--font-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fig .btn:hover,
+.fig .btn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.fig .btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fig .readout {
+  margin: 10px 0 0;
+  font: 700 13px/1.4 var(--font-label);
+  letter-spacing: 0.04em;
+}
+
+.fig figcaption {
+  margin-top: 12px;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
