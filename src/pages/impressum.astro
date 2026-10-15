@@ -1,15 +1,57 @@
 ---
 import Paper from '../layouts/Paper.astro';
+import Todo from '../components/Todo.astro';
+import { site } from '../data/site';
+import { url } from '../lib/url';
 ---
 
-<Paper title="Impressum">
-  <section class="legal">
+<Paper title="Impressum" description="Legal notice for this website.">
+  <article class="legal" lang="de">
+    <span class="label kicker">Legal notice</span>
     <h1>Impressum</h1>
-    <p class="todo">
-      Replace with your legal notice (Angaben gemäß § 5 DDG): full name, postal address and contact email.
-      Use a generator or legal advice; don’t publish without it.
+    <p class="en" lang="en">Legal notice as required by German law. The English summary: this site is run by Ibrahim Ali Khan, Paderborn, Germany.</p>
+
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <address>
+      {site.name}<br />
+      {site.address.street ? <>{site.address.street}<br /></> : <><Todo>Straße und Hausnummer</Todo><br /></>}
+      {site.address.postcode} {site.address.city}<br />
+      {site.address.country}
+    </address>
+
+    <h2>Kontakt</h2>
+    <p>
+      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a><br />
+      Telefon: <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>
     </p>
-  </section>
+
+    <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+    <p>
+      {site.name}, Anschrift wie oben.
+    </p>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Die Inhalte dieser Seite wurden mit Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und
+      Aktualität der Inhalte kann ich jedoch keine Gewähr übernehmen. Als Diensteanbieter bin ich gemäß den
+      allgemeinen Gesetzen für eigene Inhalte auf diesen Seiten verantwortlich.
+    </p>
+
+    <h2>Haftung für Links</h2>
+    <p>
+      Diese Seite enthält Links zu externen Websites Dritter (z. B. LinkedIn und GitHub), auf deren Inhalte
+      ich keinen Einfluss habe. Für diese fremden Inhalte ist stets der jeweilige Anbieter verantwortlich.
+      Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.
+    </p>
+
+    <h2>Urheberrecht</h2>
+    <p>
+      Die von mir erstellten Inhalte und Werke auf dieser Seite unterliegen dem deutschen Urheberrecht. Der
+      Quellcode der Website ist auf <a href={site.links.github}>GitHub</a> einsehbar.
+    </p>
+
+    <p class="see-also"><a href={url('/datenschutz')}>Datenschutzerklärung ›</a></p>
+  </article>
 </Paper>
 
 <style>
@@ -20,6 +62,27 @@ import Paper from '../layouts/Paper.astro';
 
   h1 {
     font: 900 44px/1.1 var(--font-head);
-    margin: 0 0 16px;
+    margin: 10px 0 12px;
+  }
+
+  h2 {
+    font: 700 22px/1.25 var(--font-head);
+    margin: 28px 0 8px;
+  }
+
+  p,
+  address {
+    margin: 0 0 12px;
+    font-style: normal;
+  }
+
+  .en {
+    font-style: italic;
+    color: var(--ink-3);
+  }
+
+  .see-also {
+    margin-top: 32px;
+    font-weight: 600;
   }
 </style>

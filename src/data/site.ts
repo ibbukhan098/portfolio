@@ -5,6 +5,14 @@ export const site = {
   role: 'AI Software Engineer',
   location: 'Paderborn',
   email: 'ibbukhan098@gmail.com',
+  phone: '+49 1556 0382007',
+  // Used by the Impressum and Datenschutz pages.
+  address: {
+    street: '', // TODO: street and house number (required by § 5 DDG)
+    postcode: '33100',
+    city: 'Paderborn',
+    country: 'Deutschland',
+  },
   links: {
     linkedin: 'https://www.linkedin.com/in/ibrahimalik/',
     github: 'https://github.com/ibbukhan098',

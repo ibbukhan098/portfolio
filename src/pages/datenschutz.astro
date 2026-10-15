@@ -1,19 +1,83 @@
 ---
 import Paper from '../layouts/Paper.astro';
+import Todo from '../components/Todo.astro';
+import { site } from '../data/site';
+import { url } from '../lib/url';
 ---
 
-<Paper title="Datenschutz">
-  <section class="legal">
+<Paper title="Datenschutz" description="Privacy policy for this website.">
+  <article class="legal" lang="de">
+    <span class="label kicker">Privacy</span>
     <h1>Datenschutzerklärung</h1>
+    <p class="en" lang="en">
+      In short: no cookies, no analytics, no tracking, and no third-party embeds. Fonts are served from this
+      site. The host, GitHub Pages, keeps standard server logs. Details in German below.
+    </p>
+
+    <h2>1. Verantwortlicher</h2>
+    <address>
+      {site.name}<br />
+      {site.address.street ? <>{site.address.street}<br /></> : <><Todo>Straße und Hausnummer</Todo><br /></>}
+      {site.address.postcode} {site.address.city}, {site.address.country}<br />
+      E-Mail: <a href={`mailto:${site.email}`}>{site.email}</a>
+    </address>
+
+    <h2>2. Überblick</h2>
     <p>
-      This site sets no cookies, uses no analytics, and loads its fonts from this server rather than from a
-      third party.
+      Diese Website setzt keine Cookies, verwendet keine Analyse- oder Tracking-Werkzeuge und bindet keine
+      Inhalte Dritter ein. Schriftarten werden von diesem Server ausgeliefert, nicht von externen Anbietern.
     </p>
-    <p class="todo">
-      Replace with a full privacy policy covering your hosting provider’s server logs and how email enquiries
-      are handled.
+    <p>
+      Die Funktion „Readers ask the Record“ läuft vollständig in Ihrem Browser. Eingegebene Fragen werden
+      weder übertragen noch gespeichert.
     </p>
-  </section>
+
+    <h2>3. Hosting über GitHub Pages</h2>
+    <p>
+      Diese Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc., 88 Colin P. Kelly
+      Jr. Street, San Francisco, CA 94107, USA. Beim Aufruf der Seiten verarbeitet GitHub technisch
+      notwendige Daten in Server-Logfiles, insbesondere IP-Adresse, Datum und Uhrzeit des Zugriffs,
+      aufgerufene Seite, Referrer-URL sowie Browser- und Betriebssysteminformationen.
+    </p>
+    <p>
+      Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Mein berechtigtes Interesse
+      liegt in der sicheren und zuverlässigen Bereitstellung der Website. Dabei können Daten in die USA
+      übermittelt werden. GitHub gibt an, unter dem EU-U.S. Data Privacy Framework zertifiziert zu sein.
+      Weitere Informationen enthält die
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.
+    </p>
+
+    <h2>4. Kontakt per E-Mail</h2>
+    <p>
+      Wenn Sie mir eine E-Mail schreiben, verarbeite ich Ihre Angaben, um Ihre Anfrage zu beantworten. Geht
+      es um eine mögliche Zusammenarbeit oder Anstellung, ist die Rechtsgrundlage Art. 6 Abs. 1 lit. b
+      DSGVO, ansonsten Art. 6 Abs. 1 lit. f DSGVO. Ich lösche die Daten, sobald sie für diesen Zweck nicht
+      mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.
+    </p>
+
+    <h2>5. Links zu anderen Websites</h2>
+    <p>
+      Diese Website verlinkt auf externe Angebote wie LinkedIn und GitHub. Es handelt sich um einfache Links:
+      Daten werden erst übertragen, wenn Sie einen Link anklicken. Ab dann gilt die Datenschutzerklärung des
+      jeweiligen Anbieters.
+    </p>
+
+    <h2>6. Ihre Rechte</h2>
+    <p>
+      Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17),
+      Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen
+      Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21). Wenden Sie sich dazu an die oben
+      genannte E-Mail-Adresse.
+    </p>
+    <p>
+      Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa bei der
+      Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestraße 2–4,
+      40213 Düsseldorf.
+    </p>
+
+    <p class="updated">Stand: Oktober 2026</p>
+    <p class="see-also"><a href={url('/impressum')}>Impressum ›</a></p>
+  </article>
 </Paper>
 
 <style>
@@ -24,6 +88,32 @@ import Paper from '../layouts/Paper.astro';
 
   h1 {
     font: 900 44px/1.1 var(--font-head);
-    margin: 0 0 16px;
+    margin: 10px 0 12px;
+  }
+
+  h2 {
+    font: 700 22px/1.25 var(--font-head);
+    margin: 28px 0 8px;
+  }
+
+  p,
+  address {
+    margin: 0 0 12px;
+    font-style: normal;
+  }
+
+  .en {
+    font-style: italic;
+    color: var(--ink-3);
+  }
+
+  .updated {
+    margin-top: 28px;
+    color: var(--ink-3);
+    font-size: 15px;
+  }
+
+  .see-also {
+    font-weight: 600;
   }
 </style>
