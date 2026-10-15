@@ -1,7 +1,6 @@
 ---
 import Article from '../../layouts/Article.astro';
 import Cite from '../../components/Cite.astro';
-import Todo from '../../components/Todo.astro';
 ---
 
 <Article
@@ -9,13 +8,14 @@ import Todo from '../../components/Todo.astro';
   kicker="Legal tech · Live"
   status="Live app"
   headline="The job-assignment MVP that became a full product"
-  deck="ClauseCraft drafts contracts from a prompt or a questionnaire, rates every clause for risk and flags what’s missing. No sign-up, and drafts never leave the browser."
+  deck="ClauseCraft drafts contracts from a prompt or a questionnaire, rates every clause for risk and flags what’s missing. No sign-up, and drafts are stored only in your browser."
   facts={[
     { label: 'Role', value: 'Solo build' },
     { label: 'Frontend', value: 'React, TypeScript, Tailwind, shadcn/ui' },
     { label: 'AI', value: 'Supabase Edge Functions, Hugging Face Router' },
     { label: 'Storage', value: 'Browser localStorage only' },
-    { label: 'Try it', value: '<span class="todo">[link to the live app]</span>' },
+    { label: 'Try it', value: '<a href="https://clause-craft.vercel.app">clause-craft.vercel.app</a>' },
+    { label: 'Code', value: '<a href="https://github.com/ibbukhan098/clause-craft">github.com/ibbukhan098/clause-craft</a>' },
   ]}
   cites={['clausecraft']}
   next={{ href: '/work/amoebots', headline: 'Finding symmetry when every particle is blind' }}
@@ -41,14 +41,33 @@ import Todo from '../../components/Todo.astro';
   </p>
   <p>
     <strong>Model calls behind Edge Functions.</strong> Supabase Edge Functions call the Hugging Face Router,
-    so no keys reach the client and models can be swapped. <Todo>which models, and why</Todo>
+    so no keys reach the client and models can be swapped. Each call walks a fallback chain: Llama 3.1 70B
+    Instruct first, then Mistral 7B Instruct, Gemma 2 2B and Zephyr 7B. A free demo can’t promise that any one
+    hosted model is up, so the chain trades some quality for an answer that still arrives. If every model
+    fails, generation falls back to a template.<Cite id="clausecraft" />
+  </p>
+  <p>
+    <strong>The model writes, rules score.</strong> The risk score is not the model’s opinion. It comes from
+    fixed rules over the clause text, so re-analysing an unchanged clause always gives the same rating. The
+    model only writes the one- or two-sentence insight next to it.
   </p>
 
   <h2>Evidence</h2>
-  <p><Todo>screenshots, a clause-analysis example, and how you checked the risk ratings</Todo></p>
+  <p>A clause, worked through by hand with the app’s own rules:</p>
+  <blockquote>
+    “The Receiving Party may use the information for evaluation purposes, and its confidentiality obligations
+    are perpetual.”
+  </blockquote>
+  <ul>
+    <li>Base risk 0.2, plus 0.3 for <em>perpetual</em>, plus 0.1 for the permissive <em>may</em>: <strong>0.6, Medium risk</strong>.</li>
+    <li>Hints attached: verify whether a finite term is acceptable, and confirm the confidentiality scope, duration and permitted disclosures.</li>
+    <li>The whole-contract check asks the model for strict JSON at temperature 0.1: which of eight standard clauses are missing, concrete compliance issues, and the governing jurisdiction. A tolerant parser pulls the JSON out even when the model wraps it in prose.</li>
+  </ul>
 
   <h2>What I’d do next</h2>
   <ul>
-    <li><Todo>e.g. cite the exact clause text behind every risk rating</Todo></li>
+    <li>Make the rules read negation. Today “no unlimited liability” scores as risky as “unlimited liability”.</li>
+    <li>Rate a small set of clauses with a lawyer and measure the score against them before trusting it.</li>
+    <li>Show the exact words behind every rating, so a reader can check it in one glance.</li>
   </ul>
 </Article>

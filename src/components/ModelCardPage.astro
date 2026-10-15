@@ -1,7 +1,6 @@
 ---
 import Paper from '../layouts/Paper.astro';
 import Cite from './Cite.astro';
-import Todo from './Todo.astro';
 import { site } from '../data/site';
 import { getLang } from '../i18n';
 
@@ -60,7 +59,13 @@ const de = lang === 'de';
     </div>
     <div>
       <dt class="label">{de ? 'Bekannte Einschränkungen' : 'Known limitations'}</dt>
-      <dd><Todo>{de ? 'eine ehrliche, leicht witzige Einschränkung' : 'one honest, slightly funny limitation'}</Todo></dd>
+      <dd>
+        {de ? (
+          <>Deutsche Ausgabe noch auf B1-Niveau, das Fine-Tuning läuft. Neigt bei spannenden Problemen zu Scope Creep: Aus einem MVP für eine Bewerbungsaufgabe wurde einmal ein ganzes Produkt.<Cite id="clausecraft" /></>
+        ) : (
+          <>German output is still at B1; fine-tuning is ongoing. Prone to scope creep on interesting problems: a job-assignment MVP once shipped as a full product.<Cite id="clausecraft" /></>
+        )}
+      </dd>
     </div>
     <div>
       <dt class="label">{de ? 'Kontakt' : 'Contact'}</dt>

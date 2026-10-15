@@ -39,4 +39,5 @@ Internal links go through `url()` in `src/lib/url.ts`, which adds the `/portfoli
 
 ## Still to do
 
-- Fill every `<Todo>` and every `TODO` comment, including source links in `sources.ts`.
+- Thesis results (`src/pages/work/thesis.astro` and the German page): results table, a failure found, the fix.
+- Exact LinkedIn post URLs for `thesis-post` and `flutter` in `sources.ts` (they link to the activity feed for now).

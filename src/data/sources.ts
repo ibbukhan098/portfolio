@@ -17,6 +17,8 @@ export interface Source {
 
 const LINKEDIN = 'https://www.linkedin.com/in/ibrahimalik/';
 const CV = '/cv.pdf';
+// Fallback until the exact post URLs are in: the profile's post feed.
+const LINKEDIN_POSTS = 'https://www.linkedin.com/in/ibrahimalik/recent-activity/all/';
 
 const P = {
   cvExperience: { en: 'Résumé · Experience', de: 'Lebenslauf · Berufserfahrung' },
@@ -84,7 +86,7 @@ export const sources: Source[] = [
       en: 'Letting patients and doctors ask questions about health records in plain language, where the AI never says anything the record cannot support.',
       de: 'Patientinnen, Patienten und Ärzte sollen Gesundheitsakten in Alltagssprache befragen können, und die KI sagt nichts, was die Akte nicht belegt.',
     },
-    // TODO: link to the post
+    url: LINKEDIN_POSTS, // TODO: replace with the exact post URL
   },
   {
     id: 'fullstack',
@@ -114,10 +116,10 @@ export const sources: Source[] = [
     title: { en: 'ClauseCraft: AI contract assistant', de: 'ClauseCraft: KI-Vertragsassistent' },
     date: '2025',
     excerpt: {
-      en: 'Generates contracts from a prompt or questionnaire, analyses each clause for risk, flags missing clauses. No sign-up; data stays in the browser.',
-      de: 'Erstellt Verträge aus einem Prompt oder Fragebogen, bewertet jede Klausel nach Risiko und erkennt fehlende Klauseln. Keine Anmeldung; die Daten bleiben im Browser.',
+      en: 'Generates contracts from a prompt or questionnaire, analyses each clause for risk, flags missing clauses. No sign-up; drafts are stored in the browser.',
+      de: 'Erstellt Verträge aus einem Prompt oder Fragebogen, bewertet jede Klausel nach Risiko und erkennt fehlende Klauseln. Keine Anmeldung; Entwürfe werden im Browser gespeichert.',
     },
-    // TODO: link to the live app
+    url: 'https://github.com/ibbukhan098/clause-craft',
   },
   {
     id: 'optimaite-deploy',
@@ -172,7 +174,7 @@ export const sources: Source[] = [
       en: 'GPS recording, data validation and background recording for an e-bike app, with a 52-test suite.',
       de: 'GPS-Aufzeichnung, Datenvalidierung und Hintergrundaufzeichnung für eine E-Bike-App, mit 52 Tests.',
     },
-    // TODO: link to the post
+    url: LINKEDIN_POSTS, // TODO: replace with the exact post URL
   },
   {
     id: 'awards',

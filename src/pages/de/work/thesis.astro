@@ -1,7 +1,6 @@
 ---
 import Article from '../../../layouts/Article.astro';
 import Cite from '../../../components/Cite.astro';
-import Todo from '../../../components/Todo.astro';
 ---
 
 <Article
@@ -40,7 +39,7 @@ import Todo from '../../../components/Todo.astro';
   <h2>Drei Regeln, die das System einhalten muss</h2>
   <ol>
     <li>
-      <strong>Die Patientin, der Patient behält die Kontrolle.</strong> Die Datenverarbeitung ist auf die DSGVO
+      <strong>Patientinnen und Patienten behalten die Kontrolle.</strong> Die Datenverarbeitung ist auf die DSGVO
       und die elektronische Patientenakte (ePA) ausgelegt: Patienten entscheiden, was geteilt wird, und die
       Pseudonymisierung lässt sich nur aufheben, wenn es nötig ist.<Cite id="thesis" />
     </li>
@@ -56,14 +55,17 @@ import Todo from '../../../components/Todo.astro';
     statt ihn vorauszusetzen.
   </p>
 
-  <h2>Belege</h2>
-  <p><Todo>Ergebnistabelle: verglichene Modelle, Belegbarkeit und Halluzinationsrate, Latenz, Kosten</Todo></p>
-  <p><strong>Ein Fehler, den ich gefunden habe:</strong> <Todo>die Frage, an der es scheiterte, und was falsch gesagt wurde</Todo></p>
-  <p><strong>Was ich geändert habe:</strong> <Todo>die Korrektur und die Kennzahl vorher und nachher</Todo></p>
+  <h2>Ergebnisse</h2>
+  <p>
+    Der Benchmark läuft noch. Mit der Abgabe der Arbeit kommen hier die Ergebnistabelle (verglichene Modelle,
+    Belegbarkeit und Halluzinationsrate, Latenz und Kosten), die Frage, an der der Assistent gescheitert ist,
+    und was ihn repariert hat.
+  </p>
+  {/* TODO: Ergebnistabelle; ein gefundener Fehler und was falsch gesagt wurde; die Korrektur mit Kennzahl vorher und nachher */}
 
-  <h2>Wie es weitergeht</h2>
+  <h2>Offene Fragen</h2>
   <ul>
-    <li><Todo>was du mit echten Klinikerinnen und Klinikern testen würdest</Todo></li>
-    <li><Todo>eine noch ungelöste Einschränkung</Todo></li>
+    <li>Wie nah kommt ein Modell, das im Krankenhaus läuft, bei der Belegbarkeit an ein Cloud-Modell heran?</li>
+    <li>Kann eine Ärztin oder ein Arzt eine Antwort in Sekunden an der Akte prüfen, wie Regel 3 es verlangt? Das lässt sich nur mit Klinikpersonal testen, nicht allein mit Benchmarks.</li>
   </ul>
 </Article>

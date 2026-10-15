@@ -1,7 +1,6 @@
 ---
 import Article from '../../layouts/Article.astro';
 import Cite from '../../components/Cite.astro';
-import Todo from '../../components/Todo.astro';
 ---
 
 <Article
@@ -55,14 +54,17 @@ import Todo from '../../components/Todo.astro';
     assuming it.
   </p>
 
-  <h2>Evidence</h2>
-  <p><Todo>results table: models compared, grounding and hallucination rates, latency, cost</Todo></p>
-  <p><strong>A failure I found:</strong> <Todo>the question that broke it, and what it wrongly said</Todo></p>
-  <p><strong>What I changed:</strong> <Todo>the fix, and the metric before and after</Todo></p>
+  <h2>Results</h2>
+  <p>
+    The benchmark is still running. When the thesis is submitted, this section gets the results table (models
+    compared, grounding and hallucination rates, latency and cost), the question that broke the assistant, and
+    what fixed it.
+  </p>
+  {/* TODO: results table; a failure found and what it wrongly said; the fix, with the metric before and after */}
 
-  <h2>What I’d do next</h2>
+  <h2>Open questions</h2>
   <ul>
-    <li><Todo>what you would test with real clinicians</Todo></li>
-    <li><Todo>a limitation you haven’t solved yet</Todo></li>
+    <li>How close can a model that runs inside the hospital get to a cloud model on grounding?</li>
+    <li>Can a doctor check an answer against the record in seconds, as rule 3 demands? That takes testing with clinicians, not just benchmarks.</li>
   </ul>
 </Article>

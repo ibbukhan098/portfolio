@@ -48,7 +48,7 @@ const editions = [
 
   <div class="title">
     <a href={url(localize('/', lang))} class="name" aria-label={`${site.paper}, ${t(ui.frontPageLabel, lang)}`}>{site.paper}</a>
-    {!compact && <p class="motto">“{t(ui.paperTagline, lang)}”</p>}
+    {!compact && <p class="motto">{lang === 'de' ? `„${t(ui.paperTagline, lang)}“` : `“${t(ui.paperTagline, lang)}”`}</p>}
   </div>
 
   <nav aria-label="Sections" class="sections">

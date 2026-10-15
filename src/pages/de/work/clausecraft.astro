@@ -1,7 +1,6 @@
 ---
 import Article from '../../../layouts/Article.astro';
 import Cite from '../../../components/Cite.astro';
-import Todo from '../../../components/Todo.astro';
 ---
 
 <Article
@@ -9,13 +8,14 @@ import Todo from '../../../components/Todo.astro';
   kicker="Legal Tech · Online"
   status="App online"
   headline="Das Bewerbungs-MVP, das zum fertigen Produkt wurde"
-  deck="ClauseCraft entwirft Verträge aus einem Prompt oder Fragebogen, bewertet jede Klausel nach Risiko und zeigt, was fehlt. Ohne Anmeldung, und die Entwürfe verlassen nie den Browser."
+  deck="ClauseCraft entwirft Verträge aus einem Prompt oder Fragebogen, bewertet jede Klausel nach Risiko und zeigt, was fehlt. Ohne Anmeldung, und Entwürfe werden nur im eigenen Browser gespeichert."
   facts={[
     { label: 'Rolle', value: 'Allein entwickelt' },
     { label: 'Frontend', value: 'React, TypeScript, Tailwind, shadcn/ui' },
     { label: 'KI', value: 'Supabase Edge Functions, Hugging Face Router' },
     { label: 'Speicher', value: 'Nur localStorage im Browser' },
-    { label: 'Ausprobieren', value: '<span class="todo">[Link zur App]</span>' },
+    { label: 'Ausprobieren', value: '<a href="https://clause-craft.vercel.app">clause-craft.vercel.app</a>' },
+    { label: 'Code', value: '<a href="https://github.com/ibbukhan098/clause-craft">github.com/ibbukhan098/clause-craft</a>' },
   ]}
   cites={['clausecraft']}
   next={{ href: '/work/amoebots', headline: 'Symmetrie finden, wenn jedes Teilchen blind ist' }}
@@ -41,14 +41,34 @@ import Todo from '../../../components/Todo.astro';
   </p>
   <p>
     <strong>Modellaufrufe hinter Edge Functions.</strong> Supabase Edge Functions rufen den Hugging Face Router
-    auf, sodass keine Schlüssel beim Client landen und Modelle austauschbar sind. <Todo>welche Modelle und warum</Todo>
+    auf, sodass keine Schlüssel beim Client landen und Modelle austauschbar sind. Jeder Aufruf geht eine
+    Fallback-Kette durch: zuerst Llama 3.1 70B Instruct, dann Mistral 7B Instruct, Gemma 2 2B und Zephyr 7B. Eine
+    kostenlose Demo kann nicht garantieren, dass ein bestimmtes gehostetes Modell erreichbar ist. Die Kette
+    tauscht also etwas Qualität gegen eine Antwort, die trotzdem ankommt. Fallen alle Modelle aus, greift die
+    Erstellung auf eine Vorlage zurück.<Cite id="clausecraft" />
+  </p>
+  <p>
+    <strong>Das Modell schreibt, Regeln bewerten.</strong> Die Risikobewertung ist nicht die Meinung des
+    Modells. Sie entsteht aus festen Regeln über den Klauseltext, deshalb ergibt eine unveränderte Klausel bei
+    jeder neuen Analyse dieselbe Bewertung. Das Modell schreibt nur die ein bis zwei Sätze Einschätzung daneben.
   </p>
 
   <h2>Belege</h2>
-  <p><Todo>Screenshots, ein Beispiel für die Klauselanalyse und wie du die Risikobewertungen geprüft hast</Todo></p>
+  <p>Eine Klausel, von Hand mit den Regeln der App durchgerechnet:</p>
+  <blockquote>
+    „The Receiving Party may use the information for evaluation purposes, and its confidentiality obligations
+    are perpetual.“
+  </blockquote>
+  <ul>
+    <li>Grundrisiko 0,2, plus 0,3 für <em>perpetual</em>, plus 0,1 für das offene <em>may</em>: <strong>0,6, mittleres Risiko</strong>.</li>
+    <li>Dazu Hinweise: prüfen, ob eine feste Laufzeit akzeptabel ist, und Umfang, Dauer und erlaubte Offenlegungen der Vertraulichkeit klären.</li>
+    <li>Die Prüfung des ganzen Vertrags verlangt vom Modell striktes JSON bei Temperatur 0,1: welche von acht Standardklauseln fehlen, konkrete Compliance-Probleme und die geltende Rechtsordnung. Ein toleranter Parser holt das JSON auch dann heraus, wenn das Modell Fließtext darum schreibt.</li>
+  </ul>
 
   <h2>Wie es weitergeht</h2>
   <ul>
-    <li><Todo>z. B. den genauen Klauseltext hinter jeder Risikobewertung zitieren</Todo></li>
+    <li>Die Regeln sollen Verneinung verstehen. Heute gilt „no unlimited liability“ als genauso riskant wie „unlimited liability“.</li>
+    <li>Eine kleine Auswahl an Klauseln von einer Juristin oder einem Juristen bewerten lassen und die Bewertung daran messen, bevor man ihr vertraut.</li>
+    <li>Bei jeder Bewertung die auslösenden Wörter zeigen, damit man sie auf einen Blick prüfen kann.</li>
   </ul>
 </Article>
