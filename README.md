@@ -40,4 +40,3 @@ Internal links go through `url()` in `src/lib/url.ts`, which adds the `/portfoli
 ## Still to do
 
 - Fill every `<Todo>` and every `TODO` comment, including source links in `sources.ts`.
-- Add `public/portrait.jpg` and swap the photo placeholder in `src/components/FrontPage.astro`.
