@@ -205,7 +205,7 @@ export const sources: Source[] = [
       en: 'Team report: distributed testing of rotational and reflective symmetry in the amoebot model via polynomial identity testing on a chain. Prime generation in O(log⁵ m) rounds, identity test in O(log⁴ m).',
       de: 'Teambericht: verteilter Test auf Rotations- und Spiegelsymmetrie im Amoebot-Modell per Polynomidentitätstest auf einer Kette. Primzahlerzeugung in O(log⁵ m) Runden, Identitätstest in O(log⁴ m).',
     },
-    // TODO: link to the 21-page report PDF
+    url: '/amoebot-report.pdf',
   },
   {
     id: 'education',

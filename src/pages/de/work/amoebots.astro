@@ -1,6 +1,7 @@
 ---
 import Article from '../../../layouts/Article.astro';
 import Cite from '../../../components/Cite.astro';
+import { url } from '../../../lib/url';
 import SwarmFigure from '../../../components/amoebots/SwarmFigure.astro';
 import TourFigure from '../../../components/amoebots/TourFigure.astro';
 import BeepFigure from '../../../components/amoebots/BeepFigure.astro';
@@ -112,7 +113,8 @@ import FingerprintFigure from '../../../components/amoebots/FingerprintFigure.as
   <p>
     Pooja Garg baute die Blockleiterwahl, die die Kette aufteilt; Thevin Arokiaraj Lawrence und Rasika Jayavelu
     die verteilte Primzahlerzeugung; Ahmet Can Kaytaz fügte alles zum Gesamtablauf zusammen und leitete die
-    Dokumentation.
+    Dokumentation. Die Arbeit des ganzen Teams steht im <a href={url('/amoebot-report.pdf')}>vollständigen
+    Projektbericht</a> (PDF, 21 Seiten, Englisch).
   </p>
 
   <h2>Was ich gelernt habe</h2>
